@@ -13,5 +13,11 @@
         "psr-4" : {
             "Protocol\\" : "src/"
         }
+    },
+    "require": {
+        "ext-libevent": "*"
+    },
+    "suggest": {
+        "php": ">=5.5.0 for coroutines support"
     }
 }
