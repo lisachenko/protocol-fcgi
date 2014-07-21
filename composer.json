@@ -1,0 +1,17 @@
+{
+    "name": "lisachenko/protocol-fcgi",
+    "description": "Implementation of FCGI Protocol in PHP",
+    "minimum-stability": "dev",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Alexander Lisachenko",
+            "email": "lisachenko.it@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4" : {
+            "Protocol\\" : "src/"
+        }
+    }
+}
