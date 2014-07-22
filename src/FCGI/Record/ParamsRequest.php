@@ -44,8 +44,8 @@ class ParamsRequest extends Record
             $dataOffset  = $valueOffset + ($isLongValue ? 4 : 1);
 
             $formatParts = array(
-                $isLongName  ? 'nnameLength' : 'CnameLength',
-                $isLongValue ? 'nvalueLength' : 'CvalueLength',
+                $isLongName  ? 'NnameLength' : 'CnameLength',
+                $isLongValue ? 'NvalueLength' : 'CvalueLength',
             );
             $format = join('/', $formatParts);
             list(
@@ -54,8 +54,8 @@ class ParamsRequest extends Record
             ) = array_values(unpack($format, $data));
 
             // Clear top bit for long record
-            $nameLength &= 0x7fffffff;
-            $valueLength &= 0x7fffffff;
+            $nameLength &= ($isLongName ? 0x7fffffff : 0x7f);
+            $valueLength &= ($isLongValue ? 0x7fffffff : 0x7f);
 
             list($nameData, $valueData) = array_values(unpack(
                 "a{$nameLength}nameData/a{$valueLength}valueData",
@@ -86,8 +86,8 @@ class ParamsRequest extends Record
             $isLongName  = $nameLength > 127;
             $isLongValue = $valueLength > 127;
             $formatParts = array(
-                $isLongName  ? 'n' : 'C',
-                $isLongValue ? 'n' : 'C',
+                $isLongName  ? 'N' : 'C',
+                $isLongValue ? 'N' : 'C',
                 "a{$nameLength}",
                 "a{$valueLength}"
             );
