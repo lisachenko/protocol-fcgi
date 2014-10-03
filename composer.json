@@ -2,7 +2,7 @@
     "name": "lisachenko/protocol-fcgi",
     "description": "Implementation of FCGI Protocol in PHP",
     "minimum-stability": "dev",
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "Alexander Lisachenko",
