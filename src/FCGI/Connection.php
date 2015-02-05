@@ -47,7 +47,6 @@ class Connection
             array($this, 'onError')
         );
         event_buffer_base_set($buffer, $this->base);
-        //event_buffer_timeout_set($buffer, 2, 2);
         event_buffer_watermark_set($buffer, EV_READ, 0, 0xffffff);
         event_buffer_priority_set($buffer, 10);
         event_buffer_enable($buffer, EV_READ|EV_WRITE);
