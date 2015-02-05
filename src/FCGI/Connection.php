@@ -67,7 +67,7 @@ class Connection
             $length  = strlen($outputRecord);
             $written = fwrite($this->connection, $outputRecord);
             if ($length !== $written) {
-                // TODO: Redelivery
+                throw new \LogicException("Write error. Part of message was not delivered");
             }
             $this->protocol->next();
         };
@@ -75,7 +75,7 @@ class Connection
         if (!$this->protocol->valid()) {
             $this->stop();
         } elseif ($this->protocol->key() === 0) {
-            // TODO: Strange situation, need to investigate, destructor of the connection won't be called too
+            // Strange situation, need to investigate, destructor of the connection won't be called too
             $this->stop();
         }
 
