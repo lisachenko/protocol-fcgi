@@ -17,6 +17,7 @@ class Server
     protected $socketAddress;
     protected $serverSocket;
     protected $isBlocking;
+    protected $eventBase;
 
     public function __construct($socketAddress, $isBlocking = false)
     {
@@ -38,25 +39,25 @@ class Server
 
         socket_set_blocking($this->serverSocket, $this->isBlocking);
 
-        $eventBase   = event_base_new();
+        $this->eventBase = event_base_new();
         $socketEvent = event_new();
 
-        event_set($socketEvent, $this->serverSocket, EV_READ | EV_PERSIST, array($this, 'onAccept'), $eventBase);
-        event_base_set($socketEvent, $eventBase);
+        event_set($socketEvent, $this->serverSocket, EV_READ | EV_PERSIST, array($this, 'onAccept'));
+        event_base_set($socketEvent, $this->eventBase);
         event_add($socketEvent);
-        event_base_loop($eventBase);
+        event_base_loop($this->eventBase);
 
         stream_socket_shutdown($this->serverSocket, STREAM_SHUT_RDWR);
     }
 
-    public function onAccept($socket, $flag, $base)
+    public function onAccept($socket)
     {
         $id = static::$id++;
 
         $connection = stream_socket_accept($socket);
         stream_set_blocking($connection, false);
 
-        $conn = new Connection($connection, $base, $id);
+        $conn = new Connection($connection, $this->eventBase, $id);
         $conn->handle();
     }
 }
