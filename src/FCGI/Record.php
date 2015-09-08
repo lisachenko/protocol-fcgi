@@ -10,11 +10,6 @@ use Protocol\FCGI;
 
 /**
  * FCGI Record class
- *
- * @property-read integer $contentLength Length of the content
- * @property-read integer $paddingLength Length of the padding field
- * @property-read string $paddingData Padding-data
- * @property string $contentData Payload for the record
  */
 class Record
 {
@@ -23,21 +18,28 @@ class Record
      *
      * @var integer
      */
-    public $version = FCGI::VERSION_1;
+    protected $version = FCGI::VERSION_1;
 
     /**
      * Identifies the FastCGI record type, i.e. the general function that the record performs.
      *
      * @var integer
      */
-    public $type = FCGI::UNKNOWN_TYPE;
+    protected $type = FCGI::UNKNOWN_TYPE;
 
     /**
      * Identifies the FastCGI request to which the record belongs.
      *
      * @var integer
      */
-    public $requestId = FCGI::NULL_REQUEST_ID;
+    protected $requestId = FCGI::NULL_REQUEST_ID;
+
+    /**
+     * Reserved byte for future proposes
+     *
+     * @var int
+     */
+    protected $reserved = 0;
 
     /**
      * The number of bytes in the contentData component of the record.
@@ -68,13 +70,13 @@ class Record
     private $paddingData = '';
 
     /**
-     * Reserved byte for future proposes
+     * Unpacks the message from the binary data buffer
      *
-     * @var int
+     * @param string $data Binary buffer with raw data
+     *
+     * @return static
      */
-    private $reserved = 0;
-
-    public static function unpack($data)
+    final public static function unpack($data)
     {
         $self = new static();
         list(
@@ -95,7 +97,12 @@ class Record
         return $self;
     }
 
-    public function __toString()
+    /**
+     * Returns the binary message representation of record
+     *
+     * @return string
+     */
+    final public function __toString()
     {
         $headerPacket = pack(
             "CCnnCC",
@@ -114,36 +121,6 @@ class Record
     }
 
     /**
-     * Magic properties accessor
-     *
-     * @param string $name Property name
-     *
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        if (!property_exists($this, $name)) {
-            return null;
-        }
-
-        return $this->$name;
-    }
-
-    /**
-     * Magic property writer
-     *
-     * @param string $name Property name
-     * @param mixed $value
-     */
-    public function __set($name, $value)
-    {
-        $setterName = 'set' . ucfirst($name);
-        if (method_exists($this, $setterName)) {
-            $this->$setterName($value);
-        }
-    }
-
-    /**
      * Sets the content data and adjusts the length fields
      *
      * @param $data
@@ -154,6 +131,82 @@ class Record
         $this->contentLength = strlen($this->contentData);
         $extraLength         = $this->contentLength % 8;
         $this->paddingLength = $extraLength ? (8 - $extraLength) : 0;
+    }
+
+    /**
+     * Returns the context data from the record
+     *
+     * @return string
+     */
+    public function getContentData()
+    {
+        return $this->contentData;
+    }
+
+    /**
+     * Returns the version of record
+     *
+     * @return int
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    /**
+     * @return int
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
+    }
+
+    /**
+     * @param int $requestId
+     *
+     * @return Record
+     */
+    public function setRequestId($requestId)
+    {
+        $this->requestId = $requestId;
+
+        return $this;
+    }
+
+    /**
+     * Returns the size of content length
+     *
+     * @return int
+     */
+    final public function getContentLength()
+    {
+        return $this->contentLength;
+    }
+
+    /**
+     * Returns the size of padding length
+     *
+     * @return int
+     */
+    final public function getPaddingLength()
+    {
+        return $this->paddingLength;
+    }
+
+    /**
+     * @return int
+     */
+    protected function getReserved()
+    {
+        return $this->reserved;
     }
 
     /**

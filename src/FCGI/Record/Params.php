@@ -6,13 +6,12 @@
 
 namespace Protocol\FCGI\Record;
 
+use Protocol\FCGI;
 use Protocol\FCGI\Record;
 
 
 /**
  * Params request record
- *
- * @property array $values
  */
 class Params extends Record
 {
@@ -30,8 +29,19 @@ class Params extends Record
      */
     public function __construct(array $values = array())
     {
+        $this->type   = FCGI::PARAMS;
         $this->values = $values;
         $this->setContentData($this->packPayload());
+    }
+
+    /**
+     * Returns an associative list of parameters
+     *
+     * @return array
+     */
+    public function getValues()
+    {
+        return $this->values;
     }
 
     /**

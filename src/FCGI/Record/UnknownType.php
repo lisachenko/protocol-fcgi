@@ -9,6 +9,14 @@ namespace Protocol\FCGI\Record;
 use Protocol\FCGI;
 use Protocol\FCGI\Record;
 
+/**
+ * Record for unknown queries
+ *
+ * The set of management record types is likely to grow in future versions of this protocol.
+ * To provide for this evolution, the protocol includes the FCGI_UNKNOWN_TYPE management record.
+ * When an application receives a management record whose type T it does not understand, the application responds
+ * with {FCGI_UNKNOWN_TYPE, 0, {T}}.
+ */
 class UnknownType extends Record
 {
     /**
@@ -31,6 +39,16 @@ class UnknownType extends Record
         $this->type1       = $type;
         $this->reserved1   = $reserved;
         $this->setContentData($this->packPayload());
+    }
+
+    /**
+     * Returns the unrecognized type
+     *
+     * @return int
+     */
+    public function getUnrecognizedType()
+    {
+        return $this->type1;
     }
 
     /**

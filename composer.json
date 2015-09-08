@@ -14,10 +14,13 @@
             "Protocol\\" : "src/"
         }
     },
-    "require": {
-        "ext-libevent": "*"
+    "autoload-dev": {
+        "psr-4" : {
+            "Protocol\\" : "demo/"
+        }
     },
     "suggest": {
-        "php": ">=5.5.0 for coroutines support"
+        "php": ">=5.5.0 for coroutines support",
+        "ext-libevent": "For testing async server with libevent"
     }
 }

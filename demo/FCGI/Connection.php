@@ -111,16 +111,16 @@ class Connection
         do {
             /** @var Params $paramsRequest */
             $paramsRequest = yield;
-            $params += $paramsRequest->values;
-        } while ($paramsRequest->contentLength);
+            $params += $paramsRequest->getValues();
+        } while ($paramsRequest->getContentLength());
 
         // Read STDIN stream
         $stdin = '';
         do {
             /** @var Record $record */
             $record = yield;
-            $stdin .= $record->contentData;
-        } while ($record->contentLength);
+            $stdin .= $record->getContentData();
+        } while ($record->getContentLength());
 
 
         ob_start();
@@ -147,14 +147,14 @@ Content-Length: $length
 $content
 CONTENT
         );
-        $response->requestId = $beginRequest->requestId;
+        $response->setRequestId($beginRequest->getRequestId());
         yield $response;
 
-        $response->contentData = '';
+        $response->setContentData('');
         yield $response;
 
         $endRequest = new EndRequest();
-        $endRequest->requestId = $beginRequest->requestId;
+        $endRequest->setRequestId($beginRequest->getRequestId());
         yield $endRequest;
     }
 
@@ -194,7 +194,7 @@ CONTENT
                 break;
         }
 
-        $offset = FCGI::HEADER_LEN + $record->contentLength + $record->paddingLength;
+        $offset = FCGI::HEADER_LEN + $record->getContentLength() + $record->getPaddingLength();
         $this->tempData = substr($this->tempData, $offset);
 
         return $record;

@@ -9,6 +9,10 @@ namespace Protocol\FCGI\Record;
 use Protocol\FCGI;
 use Protocol\FCGI\Record;
 
+/**
+ * The application sends a FCGI_END_REQUEST record to terminate a request, either because the application
+ * has processed the request or because the application has rejected the request.
+ */
 class EndRequest extends Record
 {
     /**
@@ -53,6 +57,38 @@ class EndRequest extends Record
     }
 
     /**
+     * Returns app status
+     *
+     * The appStatus component is an application-level status code. Each role documents its usage of appStatus.
+     *
+     * @return int
+     */
+    public function getAppStatus()
+    {
+        return $this->appStatus;
+    }
+
+    /**
+     * Returns the protocol status
+     *
+     * The possible protocolStatus values are:
+     *   FCGI_REQUEST_COMPLETE: normal end of request.
+     *   FCGI_CANT_MPX_CONN: rejecting a new request.
+     *      This happens when a Web server sends concurrent requests over one connection to an application that is
+     *      designed to process one request at a time per connection.
+     *   FCGI_OVERLOADED: rejecting a new request.
+     *      This happens when the application runs out of some resource, e.g. database connections.
+     *   FCGI_UNKNOWN_ROLE: rejecting a new request.
+     *      This happens when the Web server has specified a role that is unknown to the application.
+     *
+     * @return int
+     */
+    public function getProtocolStatus()
+    {
+        return $this->protocolStatus;
+    }
+
+    /**
      * Method to unpack the payload for the record
      *
      * @param Record|self $self Instance of current frame
@@ -60,7 +96,7 @@ class EndRequest extends Record
      *
      * @return Record
      */
-    public static function unpackPayload(Record $self, $data)
+    protected static function unpackPayload(Record $self, $data)
     {
         list(
             $self->appStatus,
