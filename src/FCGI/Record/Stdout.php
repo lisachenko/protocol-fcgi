@@ -9,7 +9,7 @@ namespace Protocol\FCGI\Record;
 use Protocol\FCGI;
 use Protocol\FCGI\Record;
 
-class StdoutRequest extends Record
+class Stdout extends Record
 {
     public function __construct($contentData = '')
     {

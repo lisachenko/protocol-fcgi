@@ -14,7 +14,7 @@ use Protocol\FCGI\Record;
  *
  * @property array $values
  */
-class ParamsRequest extends Record
+class Params extends Record
 {
     /**
      * List of params
@@ -24,9 +24,20 @@ class ParamsRequest extends Record
     protected $values = array();
 
     /**
+     * Constructs a param request
+     *
+     * @param array $values
+     */
+    public function __construct(array $values = array())
+    {
+        $this->values = $values;
+        $this->setContentData($this->packPayload());
+    }
+
+    /**
      * Method to unpack the payload for the record
      *
-     * @param Record|self $self Instance of current frame
+     * @param Record|Params $self Instance of current frame
      * @param string $data Binary data
      *
      * @return Record
@@ -67,7 +78,7 @@ class ParamsRequest extends Record
             $keyValueLength = $dataOffset + $nameLength + $valueLength;
             $data = substr($data, $keyValueLength);
             $currentOffset += $keyValueLength;
-        } while ($currentOffset < $self->contentLength);
+        } while ($currentOffset < $self->getContentLength());
 
         return $self;
     }

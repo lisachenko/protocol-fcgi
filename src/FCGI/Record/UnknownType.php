@@ -9,7 +9,7 @@ namespace Protocol\FCGI\Record;
 use Protocol\FCGI;
 use Protocol\FCGI\Record;
 
-class UnknownRequest extends Record
+class UnknownType extends Record
 {
     /**
      * Type of the unrecognized management record.
@@ -30,7 +30,7 @@ class UnknownRequest extends Record
         $this->type        = FCGI::UNKNOWN_TYPE;
         $this->type1       = $type;
         $this->reserved1   = $reserved;
-        $this->contentData = $this->packPayload();
+        $this->setContentData($this->packPayload());
     }
 
     /**

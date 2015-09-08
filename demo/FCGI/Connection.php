@@ -9,8 +9,8 @@ namespace Protocol\FCGI;
 use Protocol\FCGI;
 use Protocol\FCGI\Record\BeginRequest;
 use Protocol\FCGI\Record\EndRequest;
-use Protocol\FCGI\Record\ParamsRequest;
-use Protocol\FCGI\Record\StdoutRequest;
+use Protocol\FCGI\Record\Params;
+use Protocol\FCGI\Record\Stdout;
 
 class Connection
 {
@@ -109,7 +109,7 @@ class Connection
         // Read stream of params, last message will be with empty content size
         $params = array();
         do {
-            /** @var ParamsRequest $paramsRequest */
+            /** @var Params $paramsRequest */
             $paramsRequest = yield;
             $params += $paramsRequest->values;
         } while ($paramsRequest->contentLength);
@@ -138,7 +138,7 @@ class Connection
         $content = ob_get_clean();
 
         $length = strlen($content) + 1;
-        $response = new StdoutRequest(<<<CONTENT
+        $response = new Stdout(<<<CONTENT
 Status: 200 OK
 Content-Type: text/html
 Content-Length: $length
@@ -186,7 +186,7 @@ CONTENT
                 break;
 
             case FCGI::PARAMS:
-                $record = ParamsRequest::unpack($this->tempData);
+                $record = Params::unpack($this->tempData);
                 break;
 
             default:
