@@ -85,8 +85,8 @@ class Connection
     {
         while ($partialData = event_buffer_read($this->buffer, 4096)) {
             $this->tempData .= $partialData;
-            while ($data = $this->tryReadFrameData()) {
-                $record = $this->consumeRecord($data['type']);
+            while (FrameParser::hasFrame($this->tempData)) {
+                $record = FrameParser::parseFrame($this->tempData);
                 $this->protocol->send($record);
             };
         };
@@ -156,48 +156,6 @@ CONTENT
         $endRequest = new EndRequest();
         $endRequest->setRequestId($beginRequest->getRequestId());
         yield $endRequest;
-    }
-
-    protected function tryReadFrameData()
-    {
-        $bufferLength = strlen($this->tempData);
-        if ($bufferLength < FCGI::HEADER_LEN) {
-            return false;
-        }
-
-        $fastInfo = unpack(FCGI::HEADER_FORMAT, $this->tempData);
-        if ($bufferLength < FCGI::HEADER_LEN + $fastInfo['contentLength'] + $fastInfo['paddingLength']) {
-            return false;
-        }
-
-        return $fastInfo;
-    }
-
-    /**
-     * @param $recordType
-     *
-     * @return Record
-     */
-    protected function consumeRecord($recordType)
-    {
-        switch ($recordType) {
-            case FCGI::BEGIN_REQUEST:
-                $record = BeginRequest::unpack($this->tempData);
-                break;
-
-            case FCGI::PARAMS:
-                $record = Params::unpack($this->tempData);
-                break;
-
-            default:
-                $record = Record::unpack($this->tempData);
-                break;
-        }
-
-        $offset = FCGI::HEADER_LEN + $record->getContentLength() + $record->getPaddingLength();
-        $this->tempData = substr($this->tempData, $offset);
-
-        return $record;
     }
 
     /**
