@@ -202,14 +202,6 @@ class Record
     }
 
     /**
-     * @return int
-     */
-    protected function getReserved()
-    {
-        return $this->reserved;
-    }
-
-    /**
      * Method to unpack the payload for the record.
      *
      * NB: Default implementation will be always called
