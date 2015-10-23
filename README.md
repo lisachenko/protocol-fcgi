@@ -8,6 +8,13 @@ Many modern web-servers such as nginx, apache, lighthttpd, etc are communicating
 is well known and used in many applications. More detailed information about the protocol is available here here:
 http://www.fastcgi.com/devkit/doc/fcgi-spec.html
 
+[![Build Status](https://travis-ci.org/lisachenko/protocol-fcgi.svg)](https://travis-ci.org/lisachenko/protocol-fcgi)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/?branch=master)
+[![Packagist](https://img.shields.io/packagist/v/lisachenko/protocol-fcgi.svg)](https://github.com/lisachenko/protocol-fcgi)
+[![SensioLabs Insight](https://img.shields.io/sensiolabs/i/b43e1cd3-f4d9-455b-b148-7bc7b6aeb255.svg)](https://insight.sensiolabs.com/projects/b43e1cd3-f4d9-455b-b148-7bc7b6aeb255)
+[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg)](https://php.net/)
+[![License](https://img.shields.io/packagist/l/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
+
 Usage
 ------------
 This library can be used for implementing both client and server side of FCGI application. For example, nginx can
