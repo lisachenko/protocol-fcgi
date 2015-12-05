@@ -19,8 +19,12 @@
             "Protocol\\" : "tests/"
         }
     },
-    "suggest": {
-        "php": ">=5.5.0 for coroutines support",
-        "ext-libevent": "For testing async server with libevent"
+    "require": {
+      "php": ">=5.5.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
     }
 }
