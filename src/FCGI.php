@@ -36,13 +36,13 @@ class FCGI
     const STDERR             = 7;
     const DATA               = 8;
     const GET_VALUES         = 9;
-    const GET_VALUES_RESULT  =10;
-    const UNKNOWN_TYPE       =11;
+    const GET_VALUES_RESULT  = 10;
+    const UNKNOWN_TYPE       = 11;
 
     /**
      * Value for requestId component of FCGI_Header
      */
-    const NULL_REQUEST_ID    = 0;
+    const NULL_REQUEST_ID = 0;
 
     /**
      * Mask for flags component of FCGI_BeginRequestBody
