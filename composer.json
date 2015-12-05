@@ -1,7 +1,6 @@
 {
     "name": "lisachenko/protocol-fcgi",
     "description": "Implementation of FCGI Protocol in PHP",
-    "minimum-stability": "dev",
     "license": "MIT",
     "authors": [
         {
@@ -20,7 +19,10 @@
         }
     },
     "require": {
-      "php": ">=5.5.0"
+        "php": ">=5.5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0"
     },
     "extra": {
         "branch-alias": {
