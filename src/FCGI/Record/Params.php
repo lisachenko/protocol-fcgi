@@ -65,7 +65,7 @@ class Params extends Record
             $dataOffset  = $valueOffset + ($isLongValue ? 4 : 1);
 
             $formatParts = array(
-                $isLongName  ? 'NnameLength' : 'CnameLength',
+                $isLongName ? 'NnameLength' : 'CnameLength',
                 $isLongValue ? 'NvalueLength' : 'CvalueLength',
             );
             $format = join('/', $formatParts);
@@ -107,7 +107,7 @@ class Params extends Record
             $isLongName  = $nameLength > 127;
             $isLongValue = $valueLength > 127;
             $formatParts = array(
-                $isLongName  ? 'N' : 'C',
+                $isLongName ? 'N' : 'C',
                 $isLongValue ? 'N' : 'C',
                 "a{$nameLength}",
                 "a{$valueLength}"
@@ -116,7 +116,7 @@ class Params extends Record
 
             $payload .= pack(
                 $format,
-                $isLongName  ? ($nameLength | 0x80000000) : $nameLength,
+                $isLongName ? ($nameLength | 0x80000000) : $nameLength,
                 $isLongValue ? ($valueLength | 0x80000000) : $valueLength,
                 $nameData,
                 $valueData
