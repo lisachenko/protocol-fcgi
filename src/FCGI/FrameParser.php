@@ -1,18 +1,17 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace Lisachenko\Protocol\FCGI;
+
+use Lisachenko\Protocol\FCGI;
+
 /**
+ * Utility class to simplify parsing of FCGI protocol data.
+ *
  * @author Alexander.Lisachenko
- * @date 08.09.2015
- */
-
-namespace Protocol\FCGI;
-
-use Protocol\FCGI;
-
-/**
- * Utility class to simplify parsing of FCGI protocol data
  */
 class FrameParser
 {
+
     /**
      * Mapping of constants to the classes
      *
@@ -39,7 +38,7 @@ class FrameParser
      *
      * @return bool
      */
-    public static function hasFrame($buffer)
+    public static function hasFrame(string $buffer): bool
     {
         $bufferLength = strlen($buffer);
         if ($bufferLength < FCGI::HEADER_LEN) {
@@ -61,7 +60,7 @@ class FrameParser
      *
      * @return Record One of the corresponding FCGI record
      */
-    public static function parseFrame(&$buffer)
+    public static function parseFrame(string &$buffer): Record
     {
         $bufferLength = strlen($buffer);
         if ($bufferLength < FCGI::HEADER_LEN) {
@@ -83,4 +82,5 @@ class FrameParser
 
         return $record;
     }
+
 }

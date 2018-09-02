@@ -10,23 +10,23 @@
     ],
     "autoload": {
         "psr-4" : {
-            "Protocol\\" : "src/"
+            "Lisachenko\\Protocol\\" : "src/"
         }
     },
     "autoload-dev": {
         "psr-4" : {
-            "Protocol\\" : "tests/"
+            "Lisachenko\\Protocol\\" : "tests/"
         }
     },
     "require": {
-        "php": ">=5.5.0"
+        "php": "^7.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~7.0"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-master": "2.x-dev"
         }
     }
 }

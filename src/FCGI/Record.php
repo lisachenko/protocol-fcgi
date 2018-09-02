@@ -1,36 +1,35 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace Lisachenko\Protocol\FCGI;
+
+use Lisachenko\Protocol\FCGI;
+
 /**
+ * FCGI record.
+ *
  * @author Alexander.Lisachenko
- * @date 14.07.2014
- */
-
-namespace Protocol\FCGI;
-
-use Protocol\FCGI;
-
-/**
- * FCGI Record class
  */
 class Record
 {
+
     /**
      * Identifies the FastCGI protocol version.
      *
-     * @var integer
+     * @var int
      */
     protected $version = FCGI::VERSION_1;
 
     /**
      * Identifies the FastCGI record type, i.e. the general function that the record performs.
      *
-     * @var integer
+     * @var int
      */
     protected $type = FCGI::UNKNOWN_TYPE;
 
     /**
      * Identifies the FastCGI request to which the record belongs.
      *
-     * @var integer
+     * @var int
      */
     protected $requestId = FCGI::NULL_REQUEST_ID;
 
@@ -44,14 +43,14 @@ class Record
     /**
      * The number of bytes in the contentData component of the record.
      *
-     * @var integer
+     * @var int
      */
     private $contentLength = 0;
 
     /**
      * The number of bytes in the paddingData component of the record.
      *
-     * @var integer
+     * @var int
      */
     private $paddingLength = 0;
 
@@ -76,17 +75,17 @@ class Record
      *
      * @return static
      */
-    final public static function unpack($data)
+    final public static function unpack(string $data): self
     {
         $self = new static();
-        list(
+        [
             $self->version,
             $self->type,
             $self->requestId,
             $self->contentLength,
             $self->paddingLength,
             $self->reserved
-        ) = array_values(unpack(FCGI::HEADER_FORMAT, $data));
+        ] = array_values(unpack(FCGI::HEADER_FORMAT, $data));
 
         $payload = substr($data, FCGI::HEADER_LEN);
         self::unpackPayload($self, $payload);
@@ -99,10 +98,8 @@ class Record
 
     /**
      * Returns the binary message representation of record
-     *
-     * @return string
      */
-    final public function __toString()
+    final public function __toString(): string
     {
         $headerPacket = pack(
             "CCnnCC",
@@ -123,80 +120,79 @@ class Record
     /**
      * Sets the content data and adjusts the length fields
      *
-     * @param $data
+     * @param string $data
+     *
+     * @return static
      */
-    public function setContentData($data)
+    public function setContentData(string $data): self
     {
-        $this->contentData   = $data;
+        $this->contentData = $data;
         $this->contentLength = strlen($this->contentData);
-        $extraLength         = $this->contentLength % 8;
+        $extraLength = $this->contentLength % 8;
         $this->paddingLength = $extraLength ? (8 - $extraLength) : 0;
+        return $this;
     }
 
     /**
      * Returns the context data from the record
-     *
-     * @return string
      */
-    public function getContentData()
+    public function getContentData(): string
     {
         return $this->contentData;
     }
 
     /**
      * Returns the version of record
-     *
-     * @return int
      */
-    public function getVersion()
+    public function getVersion(): int
     {
         return $this->version;
     }
 
     /**
-     * @return int
+     * Returns record type
      */
-    public function getType()
+    public function getType(): int
     {
         return $this->type;
     }
 
     /**
-     * @return int
+     * Returns request ID
      */
-    public function getRequestId()
+    public function getRequestId(): int
     {
         return $this->requestId;
     }
 
     /**
+     * Sets request ID
+     *
+     * There should be only one unique ID for all active requests,
+     * use random number or preferably resetting auto-increment.
+     *
      * @param int $requestId
      *
-     * @return Record
+     * @return static
      */
-    public function setRequestId($requestId)
+    public function setRequestId(int $requestId): self
     {
         $this->requestId = $requestId;
-
         return $this;
     }
 
     /**
      * Returns the size of content length
-     *
-     * @return int
      */
-    final public function getContentLength()
+    final public function getContentLength(): int
     {
         return $this->contentLength;
     }
 
     /**
      * Returns the size of padding length
-     *
-     * @return int
      */
-    final public function getPaddingLength()
+    final public function getPaddingLength(): int
     {
         return $this->paddingLength;
     }
@@ -206,26 +202,25 @@ class Record
      *
      * NB: Default implementation will be always called
      *
-     * @param Record $self Instance of current frame
+     * @param static $self Instance of current frame
      * @param string $data Binary data
      */
-    protected static function unpackPayload(Record $self, $data)
+    protected static function unpackPayload($self, string $data): void
     {
-        list(
+        [
             $self->contentData,
             $self->paddingData
-        ) = array_values(
+        ] = array_values(
             unpack("a{$self->contentLength}contentData/a{$self->paddingLength}paddingData", $data)
         );
     }
 
     /**
      * Implementation of packing the payload
-     *
-     * @return string
      */
-    protected function packPayload()
+    protected function packPayload(): string
     {
         return pack("a{$this->contentLength}", $this->contentData);
     }
+
 }

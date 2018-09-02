@@ -1,13 +1,9 @@
-<?php
-/**
- * @author Alexander.Lisachenko
- * @date 14.07.2014
- */
+<?php declare(strict_types=1);
 
-namespace Protocol\FCGI\Record;
+namespace Lisachenko\Protocol\FCGI\Record;
 
-use Protocol\FCGI;
-use Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * Record for unknown queries
@@ -16,13 +12,16 @@ use Protocol\FCGI\Record;
  * To provide for this evolution, the protocol includes the FCGI_UNKNOWN_TYPE management record.
  * When an application receives a management record whose type T it does not understand, the application responds
  * with {FCGI_UNKNOWN_TYPE, 0, {T}}.
+ *
+ * @author Alexander.Lisachenko
  */
 class UnknownType extends Record
 {
+
     /**
      * Type of the unrecognized management record.
      *
-     * @var integer
+     * @var int
      */
     protected $type1;
 
@@ -33,48 +32,33 @@ class UnknownType extends Record
      */
     protected $reserved1;
 
-    public function __construct($type = 0, $reserved = '')
+    public function __construct(int $type = 0, string $reserved = '')
     {
-        $this->type        = FCGI::UNKNOWN_TYPE;
-        $this->type1       = $type;
-        $this->reserved1   = $reserved;
+        $this->type = FCGI::UNKNOWN_TYPE;
+        $this->type1 = $type;
+        $this->reserved1 = $reserved;
         $this->setContentData($this->packPayload());
     }
 
     /**
      * Returns the unrecognized type
-     *
-     * @return int
      */
-    public function getUnrecognizedType()
+    public function getUnrecognizedType(): int
     {
         return $this->type1;
     }
 
     /**
-     * Method to unpack the payload for the record
-     *
-     * @param Record $self Instance of current frame
-     * @param string $data Binary data
-     *
-     * @return Record
+     * {@inheritdoc}
+     * @param static $self
      */
-    public static function unpackPayload(Record $self, $data)
+    public static function unpackPayload($self, string $data): void
     {
-        list(
-            $self->type1,
-            $self->reserved1
-        ) = array_values(unpack("Ctype/a7reserved", $data));
-
-        return $self;
+        [$self->type1, $self->reserved1] = array_values(unpack("Ctype/a7reserved", $data));
     }
 
-    /**
-     * Implementation of packing the payload
-     *
-     * @return string
-     */
-    protected function packPayload()
+    /** {@inheritdoc} */
+    protected function packPayload(): string
     {
         return pack(
             "Ca7",
@@ -82,4 +66,5 @@ class UnknownType extends Record
             $this->reserved1
         );
     }
+
 }

@@ -1,19 +1,20 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace Lisachenko\Protocol\FCGI;
+
+use PHPUnit\Framework\TestCase;
+use Lisachenko\Protocol\FCGI;
+
 /**
  * @author Alexander.Lisachenko
- * @date   23.10.2015
  */
-
-namespace Protocol\FCGI;
-
-use Protocol\FCGI;
-
-class RecordTest extends \PHPUnit_Framework_TestCase
+class RecordTest extends TestCase
 {
+
     // from the wireshark captured traffic
     static $rawRequest = '01010001000800000001010000000000';
 
-    public function testUnpackingPacket()
+    public function testUnpackingPacket(): void
     {
         $packet = hex2bin(self::$rawRequest);
         $record = Record::unpack($packet);
@@ -29,7 +30,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($record->getContentData(), hex2bin('0001010000000000'));
     }
 
-    public function testPackingPacket()
+    public function testPackingPacket(): void
     {
         $record = new Record();
         $record->setRequestId(5);
@@ -46,7 +47,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
     /**
      * Padding size should resize the packet size to the 8 bytes boundary for optimal performance
      */
-    public function testAutomaticCalculationOfPaddingLength()
+    public function testAutomaticCalculationOfPaddingLength(): void
     {
         $record = new Record();
         $record->setContentData('12345');
@@ -55,4 +56,5 @@ class RecordTest extends \PHPUnit_Framework_TestCase
         $record->setContentData('12345678');
         $this->assertEquals($record->getPaddingLength(), 0);
     }
+
 }
