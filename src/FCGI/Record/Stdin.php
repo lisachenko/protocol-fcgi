@@ -1,24 +1,24 @@
-<?php
-/**
- * @author Alexander.Lisachenko
- * @date 08.09.2015
- */
+<?php declare(strict_types=1);
 
-namespace Protocol\FCGI\Record;
+namespace Lisachenko\Protocol\FCGI\Record;
 
-use Protocol\FCGI;
-use Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * Stdin binary stream
  *
  * FCGI_STDIN is a stream record type used in sending arbitrary data from the Web server to the application
+ *
+ * @author Alexander.Lisachenko
  */
 class Stdin extends Record
 {
-    public function __construct($contentData = '')
+
+    public function __construct(string $contentData = '')
     {
         $this->type = FCGI::STDIN;
         $this->setContentData($contentData);
     }
+
 }

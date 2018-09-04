@@ -32,12 +32,12 @@ Simple FCGI-client:
 ```php
 <?php
 
-use Protocol\FCGI;
-use Protocol\FCGI\FrameParser;
-use Protocol\FCGI\Record;
-use Protocol\FCGI\Record\BeginRequest;
-use Protocol\FCGI\Record\Params;
-use Protocol\FCGI\Record\Stdin;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\FrameParser;
+use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\Record\BeginRequest;
+use Lisachenko\Protocol\FCGI\Record\Params;
+use Lisachenko\Protocol\FCGI\Record\Stdin;
 
 include "vendor/autoload.php";
 
@@ -69,12 +69,12 @@ To implement FCGI server, just create a socket and make request-response loop
 
 ```php
 
-use Protocol\FCGI;
-use Protocol\FCGI\FrameParser;
-use Protocol\FCGI\Record;
-use Protocol\FCGI\Record\BeginRequest;
-use Protocol\FCGI\Record\Params;
-use Protocol\FCGI\Record\Stdin;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\FrameParser;
+use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\Record\BeginRequest;
+use Lisachenko\Protocol\FCGI\Record\Params;
+use Lisachenko\Protocol\FCGI\Record\Stdin;
 
 include "vendor/autoload.php";
 

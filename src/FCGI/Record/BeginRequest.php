@@ -1,16 +1,14 @@
-<?php
-/**
- * @author Alexander.Lisachenko
- * @date 14.07.2014
- */
+<?php declare(strict_types=1);
 
-namespace Protocol\FCGI\Record;
+namespace Lisachenko\Protocol\FCGI\Record;
 
-use Protocol\FCGI;
-use Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * The Web server sends a FCGI_BEGIN_REQUEST record to start a request.
+ *
+ * @author Alexander.Lisachenko
  */
 class BeginRequest extends Record
 {
@@ -22,7 +20,7 @@ class BeginRequest extends Record
      *   FCGI_AUTHORIZER
      *   FCGI_FILTER
      *
-     * @var integer
+     * @var int
      */
     protected $role = FCGI::UNKNOWN_ROLE;
 
@@ -34,7 +32,7 @@ class BeginRequest extends Record
      *   If not zero, the application does not close the connection after responding to this request;
      *   the Web server retains responsibility for the connection.
      *
-     * @var integer
+     * @var int
      */
     protected $flags;
 
@@ -45,11 +43,11 @@ class BeginRequest extends Record
      */
     protected $reserved1;
 
-    public function __construct($role = FCGI::UNKNOWN_ROLE, $flags = 0, $reserved = '')
+    public function __construct(int $role = FCGI::UNKNOWN_ROLE, int $flags = 0, string $reserved = '')
     {
-        $this->type      = FCGI::BEGIN_REQUEST;
-        $this->role      = $role;
-        $this->flags     = $flags;
+        $this->type = FCGI::BEGIN_REQUEST;
+        $this->role = $role;
+        $this->flags = $flags;
         $this->reserved1 = $reserved;
         $this->setContentData($this->packPayload());
     }
@@ -62,10 +60,8 @@ class BeginRequest extends Record
      *   FCGI_RESPONDER
      *   FCGI_AUTHORIZER
      *   FCGI_FILTER
-     *
-     * @return int
      */
-    public function getRole()
+    public function getRole(): int
     {
         return $this->role;
     }
@@ -79,39 +75,27 @@ class BeginRequest extends Record
      *   If zero, the application closes the connection after responding to this request.
      *   If not zero, the application does not close the connection after responding to this request;
      *   the Web server retains responsibility for the connection.
-     *
-     * @return int
      */
-    public function getFlags()
+    public function getFlags(): int
     {
         return $this->flags;
     }
 
     /**
-     * Method to unpack the payload for the record
-     *
-     * @param Record|self $self Instance of current frame
-     * @param string $data Binary data
-     *
-     * @return Record
+     * {@inheritdoc}
+     * @param static $self
      */
-    protected static function unpackPayload(Record $self, $data)
+    protected static function unpackPayload($self, string $data): void
     {
-        list(
+        [
             $self->role,
             $self->flags,
             $self->reserved1
-        ) = array_values(unpack("nrole/Cflags/a5reserved", $data));
-
-        return $self;
+        ] = array_values(unpack("nrole/Cflags/a5reserved", $data));
     }
 
-    /**
-     * Implementation of packing the payload
-     *
-     * @return string
-     */
-    protected function packPayload()
+    /** {@inheritdoc} */
+    protected function packPayload(): string
     {
         return pack(
             "nCa5",

@@ -1,24 +1,24 @@
-<?php
-/**
- * @author Alexander.Lisachenko
- * @date 14.07.2014
- */
+<?php declare(strict_types=1);
 
-namespace Protocol\FCGI\Record;
+namespace Lisachenko\Protocol\FCGI\Record;
 
-use Protocol\FCGI;
-use Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * Stdout binary stream
  *
  * FCGI_STDOUT is a stream record for sending arbitrary data from the application to the Web server
+ *
+ * @author Alexander.Lisachenko
  */
 class Stdout extends Record
 {
-    public function __construct($contentData = '')
+
+    public function __construct(string $contentData = '')
     {
         $this->type = FCGI::STDOUT;
         $this->setContentData($contentData);
     }
+
 }

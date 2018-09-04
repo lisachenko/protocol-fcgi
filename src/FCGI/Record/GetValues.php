@@ -1,13 +1,9 @@
-<?php
-/**
- * @author Alexander.Lisachenko
- * @date 14.07.2014
- */
+<?php declare(strict_types=1);
 
-namespace Protocol\FCGI\Record;
+namespace Lisachenko\Protocol\FCGI\Record;
 
-use Protocol\FCGI;
-use Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * GetValues API
@@ -28,6 +24,8 @@ use Protocol\FCGI\Record;
  *   FCGI_MAX_REQS:   The maximum number of concurrent requests this application will accept, e.g. "1" or "50".
  *   FCGI_MPXS_CONNS: "0" if this application does not multiplex connections (i.e. handle concurrent requests
  *                    over each connection), "1" otherwise.
+ *
+ * @author Alexander.Lisachenko
  */
 class GetValues extends Params
 {
@@ -37,9 +35,10 @@ class GetValues extends Params
      *
      * @param array $keys List of keys to receive
      */
-    public function __construct(array $keys = array())
+    public function __construct(array $keys = [])
     {
         parent::__construct(array_fill_keys($keys, ''));
         $this->type = FCGI::GET_VALUES;
     }
+
 }

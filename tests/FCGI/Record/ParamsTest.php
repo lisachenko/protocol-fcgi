@@ -1,14 +1,14 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace Lisachenko\Protocol\FCGI\Record;
+
+use PHPUnit\Framework\TestCase;
+use Lisachenko\Protocol\FCGI;
+
 /**
  * @author Alexander.Lisachenko
- * @date   23.10.2015
  */
-
-namespace Protocol\FCGI\Record;
-
-use Protocol\FCGI;
-
-class ParamsTest extends \PHPUnit_Framework_TestCase
+class ParamsTest extends TestCase
 {
     protected static $rawMessage ='
         01040000005b05000f0e5343524950545f46494c454e414d452f686f6d652f746573742e7068701
@@ -21,16 +21,16 @@ class ParamsTest extends \PHPUnit_Framework_TestCase
         'SERVER_SOFTWARE'   => "PHP/Protocol-FCGI",
     );
 
-    public function testPacking()
+    public function testPacking(): void
     {
         $request = new Params(self::$params);
         $this->assertEquals($request->getType(), FCGI::PARAMS);
         $this->assertEquals(self::$params, $request->getValues());
 
-        $this->assertSame(preg_replace('/\s+/', '', self::$rawMessage), bin2hex($request));
+        $this->assertSame(preg_replace('/\s+/', '', self::$rawMessage), bin2hex((string) $request));
     }
 
-    public function testUnpacking()
+    public function testUnpacking(): void
     {
         $request = Params::unpack(hex2bin(preg_replace('/\s+/', '', self::$rawMessage)));
 

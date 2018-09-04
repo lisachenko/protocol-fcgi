@@ -1,87 +1,78 @@
-<?php
-/**
- * @author Alexander.Lisachenko
- * @date 14.07.2014
- */
+<?php declare(strict_types=1);
 
-namespace Protocol\FCGI\Record;
+namespace Lisachenko\Protocol\FCGI\Record;
 
-use Protocol\FCGI;
-use Protocol\FCGI\Record;
-
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * Params request record
+ *
+ * @author Alexander.Lisachenko
  */
 class Params extends Record
 {
+
     /**
      * List of params
      *
      * @var array
      */
-    protected $values = array();
+    protected $values = [];
 
     /**
      * Constructs a param request
      *
      * @param array $values
      */
-    public function __construct(array $values = array())
+    public function __construct(array $values = [])
     {
-        $this->type   = FCGI::PARAMS;
+        $this->type = FCGI::PARAMS;
         $this->values = $values;
         $this->setContentData($this->packPayload());
     }
 
     /**
      * Returns an associative list of parameters
-     *
-     * @return array
      */
-    public function getValues()
+    public function getValues(): array
     {
         return $this->values;
     }
 
     /**
-     * Method to unpack the payload for the record
-     *
-     * @param Record|Params $self Instance of current frame
-     * @param string $data Binary data
-     *
-     * @return Record
+     * {@inheritdoc}
+     * @param static $self
      */
-    protected static function unpackPayload(Record $self, $data)
+    protected static function unpackPayload($self, string $data): void
     {
         $currentOffset = 0;
         do {
-            list($nameLengthHigh) = array_values(unpack('CnameLengthHigh', $data));
-            $isLongName  = ($nameLengthHigh >> 7 == 1);
+            [$nameLengthHigh] = array_values(unpack('CnameLengthHigh', $data));
+            $isLongName = ($nameLengthHigh >> 7 == 1);
             $valueOffset = $isLongName ? 4 : 1;
 
-            list($valueLengthHigh) = array_values(unpack('CvalueLengthHigh', substr($data, $valueOffset)));
+            [$valueLengthHigh] = array_values(unpack('CvalueLengthHigh', substr($data, $valueOffset)));
             $isLongValue = ($valueLengthHigh >> 7 == 1);
-            $dataOffset  = $valueOffset + ($isLongValue ? 4 : 1);
+            $dataOffset = $valueOffset + ($isLongValue ? 4 : 1);
 
-            $formatParts = array(
+            $formatParts = [
                 $isLongName ? 'NnameLength' : 'CnameLength',
                 $isLongValue ? 'NvalueLength' : 'CvalueLength',
-            );
+            ];
             $format = join('/', $formatParts);
-            list(
-                $nameLength,
-                $valueLength
-            ) = array_values(unpack($format, $data));
+            [$nameLength, $valueLength] = array_values(unpack($format, $data));
 
             // Clear top bit for long record
             $nameLength &= ($isLongName ? 0x7fffffff : 0x7f);
             $valueLength &= ($isLongValue ? 0x7fffffff : 0x7f);
 
-            list($nameData, $valueData) = array_values(unpack(
-                "a{$nameLength}nameData/a{$valueLength}valueData",
-                substr($data, $dataOffset)
-            ));
+            [$nameData, $valueData] = array_values(
+                unpack(
+                    "a{$nameLength}nameData/a{$valueLength}valueData",
+                    substr($data, $dataOffset)
+                )
+            );
 
             $self->values[$nameData] = $valueData;
 
@@ -89,29 +80,23 @@ class Params extends Record
             $data = substr($data, $keyValueLength);
             $currentOffset += $keyValueLength;
         } while ($currentOffset < $self->getContentLength());
-
-        return $self;
     }
 
-    /**
-     * Implementation of packing the payload
-     *
-     * @return string
-     */
-    protected function packPayload()
+    /** {@inheritdoc} */
+    protected function packPayload(): string
     {
         $payload = '';
         foreach ($this->values as $nameData => $valueData) {
-            $nameLength  = strlen($nameData);
-            $valueLength = strlen($valueData);
-            $isLongName  = $nameLength > 127;
+            $nameLength = strlen($nameData);
+            $valueLength = strlen((string) $valueData);
+            $isLongName = $nameLength > 127;
             $isLongValue = $valueLength > 127;
-            $formatParts = array(
+            $formatParts = [
                 $isLongName ? 'N' : 'C',
                 $isLongValue ? 'N' : 'C',
                 "a{$nameLength}",
-                "a{$valueLength}"
-            );
+                "a{$valueLength}",
+            ];
             $format = join('', $formatParts);
 
             $payload .= pack(
@@ -125,4 +110,5 @@ class Params extends Record
 
         return $payload;
     }
+
 }

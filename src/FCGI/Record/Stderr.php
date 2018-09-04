@@ -1,24 +1,24 @@
-<?php
-/**
- * @author Alexander.Lisachenko
- * @date 08.09.2015
- */
+<?php declare(strict_types=1);
 
-namespace Protocol\FCGI\Record;
+namespace Lisachenko\Protocol\FCGI\Record;
 
-use Protocol\FCGI;
-use Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * Stderr binary stream
  *
  * FCGI_STDERR is a stream record for sending arbitrary data from the application to the Web server
+ *
+ * @author Alexander.Lisachenko
  */
 class Stderr extends Record
 {
-    public function __construct($contentData = '')
+
+    public function __construct(string $contentData = '')
     {
         $this->type = FCGI::STDERR;
         $this->setContentData($contentData);
     }
+
 }

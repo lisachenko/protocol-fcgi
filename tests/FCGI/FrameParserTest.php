@@ -1,18 +1,17 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace Lisachenko\Protocol\FCGI;
+
+use PHPUnit\Framework\TestCase;
+use Lisachenko\Protocol\FCGI\Record\BeginRequest;
+use Lisachenko\Protocol\FCGI\Record\Params;
+
 /**
  * @author Alexander.Lisachenko
- * @date   23.10.2015
  */
-
-namespace Protocol\FCGI;
-
-use Protocol\FCGI;
-use Protocol\FCGI\Record\BeginRequest;
-use Protocol\FCGI\Record\Params;
-
-class FrameParserTest extends \PHPUnit_Framework_TestCase
+class FrameParserTest extends TestCase
 {
-    public function testHasFrame()
+    public function testHasFrame(): void
     {
         $incompletePacket = hex2bin('010100010008000000');
         $this->assertFalse(FrameParser::hasFrame($incompletePacket));
@@ -21,7 +20,7 @@ class FrameParserTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(FrameParser::hasFrame($completePacket));
     }
 
-    public function testParsingFrame()
+    public function testParsingFrame(): void
     {
         // one FCGI_BEGIN request with two empty FCGI_PARAMS request
         $dataStream = hex2bin('0101000100080000000101000000000001040001000000000104000100000000');
@@ -31,7 +30,7 @@ class FrameParserTest extends \PHPUnit_Framework_TestCase
         // consume FCGI_BEGIN request
         $record = FrameParser::parseFrame($dataStream);
         $this->assertInstanceOf(BeginRequest::class, $record);
-        $recordSize = strlen($record);
+        $recordSize = strlen((string) $record);
         $this->assertEquals(16, $recordSize);
 
         $this->assertEquals($bufferSize - $recordSize, strlen($dataStream));
