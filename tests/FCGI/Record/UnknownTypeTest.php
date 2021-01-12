@@ -1,4 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+/*
+ * Protocol FCGI library
+ *
+ * @copyright Copyright 2021. Lisachenko Alexander <lisachenko.it@gmail.com>
+ * This source file is subject to the license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
@@ -10,7 +19,7 @@ use Lisachenko\Protocol\FCGI;
  */
 class UnknownTypeTest extends TestCase
 {
-    protected static $rawMessage = '010b0000000800002a57544621000000';
+    protected static string $rawMessage = '010b0000000800002a57544621000000';
 
     public function testPacking(): void
     {
@@ -23,7 +32,9 @@ class UnknownTypeTest extends TestCase
 
     public function testUnpacking(): void
     {
-        $request = UnknownType::unpack(hex2bin(self::$rawMessage));
+        /** @var string $binaryData */
+        $binaryData = hex2bin(self::$rawMessage);
+        $request    = UnknownType::unpack($binaryData);
 
         $this->assertEquals(FCGI::UNKNOWN_TYPE, $request->getType());
         $this->assertEquals(42, $request->getUnrecognizedType());

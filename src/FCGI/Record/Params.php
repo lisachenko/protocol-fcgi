@@ -1,4 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+/*
+ * Protocol FCGI library
+ *
+ * @copyright Copyright 2021. Lisachenko Alexander <lisachenko.it@gmail.com>
+ * This source file is subject to the license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
@@ -12,28 +21,30 @@ use Lisachenko\Protocol\FCGI\Record;
  */
 class Params extends Record
 {
-
     /**
      * List of params
      *
-     * @var array
+     * @var string[]
+     * @phpstan-var array<string, string>
      */
-    protected $values = [];
+    protected array $values = [];
 
     /**
      * Constructs a param request
      *
-     * @param array $values
+     * @phpstan-param array<string, string> $values
      */
     public function __construct(array $values = [])
     {
-        $this->type = FCGI::PARAMS;
+        $this->type   = FCGI::PARAMS;
         $this->values = $values;
         $this->setContentData($this->packPayload());
     }
 
     /**
      * Returns an associative list of parameters
+     *
+     * @phpstan-return array<string, string>
      */
     public function getValues(): array
     {
@@ -42,54 +53,75 @@ class Params extends Record
 
     /**
      * {@inheritdoc}
-     * @param static $self
      */
-    protected static function unpackPayload($self, string $data): void
+    protected static function unpackPayload($self, string $binaryData): void
     {
+        assert($self instanceof self);
         $currentOffset = 0;
         do {
-            [$nameLengthHigh] = array_values(unpack('CnameLengthHigh', $data));
-            $isLongName = ($nameLengthHigh >> 7 == 1);
+            /** @phpstan-var false|array{nameLengthHigh: int} */
+            $payload = unpack('CnameLengthHigh', $binaryData);
+            if ($payload === false) {
+                throw new \RuntimeException('Can not unpack data from the binary buffer');
+            }
+            [$nameLengthHigh] = array_values($payload);
+            $isLongName  = ($nameLengthHigh >> 7 == 1);
             $valueOffset = $isLongName ? 4 : 1;
 
-            [$valueLengthHigh] = array_values(unpack('CvalueLengthHigh', substr($data, $valueOffset)));
+            /** @phpstan-var false|array{valueLengthHigh: int} */
+            $payload = unpack('CvalueLengthHigh', substr($binaryData, $valueOffset));
+            if ($payload === false) {
+                throw new \RuntimeException('Can not unpack data from the binary buffer');
+            }
+            [$valueLengthHigh] = array_values($payload);
             $isLongValue = ($valueLengthHigh >> 7 == 1);
-            $dataOffset = $valueOffset + ($isLongValue ? 4 : 1);
+            $dataOffset  = $valueOffset + ($isLongValue ? 4 : 1);
 
             $formatParts = [
                 $isLongName ? 'NnameLength' : 'CnameLength',
                 $isLongValue ? 'NvalueLength' : 'CvalueLength',
             ];
-            $format = join('/', $formatParts);
-            [$nameLength, $valueLength] = array_values(unpack($format, $data));
+            $format      = join('/', $formatParts);
+
+            /** @phpstan-var false|array{nameLength: int, valueLength: int} */
+            $payload = unpack($format, $binaryData);
+            if ($payload === false) {
+                throw new \RuntimeException('Can not unpack data from the binary buffer');
+            }
+            [$nameLength, $valueLength] = array_values($payload);
 
             // Clear top bit for long record
-            $nameLength &= ($isLongName ? 0x7fffffff : 0x7f);
+            $nameLength  &= ($isLongName ? 0x7fffffff : 0x7f);
             $valueLength &= ($isLongValue ? 0x7fffffff : 0x7f);
 
-            [$nameData, $valueData] = array_values(
-                unpack(
-                    "a{$nameLength}nameData/a{$valueLength}valueData",
-                    substr($data, $dataOffset)
-                )
+            /** @phpstan-var false|array{nameData: string, valueData: string} */
+            $payload = unpack(
+                "a{$nameLength}nameData/a{$valueLength}valueData",
+                substr($binaryData, $dataOffset)
             );
+            if ($payload === false) {
+                throw new \RuntimeException('Can not unpack data from the binary buffer');
+            }
+            [$nameData, $valueData] = array_values($payload);
 
             $self->values[$nameData] = $valueData;
 
             $keyValueLength = $dataOffset + $nameLength + $valueLength;
-            $data = substr($data, $keyValueLength);
-            $currentOffset += $keyValueLength;
+            $binaryData     = substr($binaryData, $keyValueLength);
+            $currentOffset  += $keyValueLength;
         } while ($currentOffset < $self->getContentLength());
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     protected function packPayload(): string
     {
         $payload = '';
         foreach ($this->values as $nameData => $valueData) {
-            $nameLength = strlen($nameData);
-            $valueLength = strlen((string) $valueData);
-            $isLongName = $nameLength > 127;
+            $nameLength  = strlen($nameData);
+            $valueLength = strlen((string)$valueData);
+            $isLongName  = $nameLength > 127;
             $isLongValue = $valueLength > 127;
             $formatParts = [
                 $isLongName ? 'N' : 'C',
@@ -97,6 +129,7 @@ class Params extends Record
                 "a{$nameLength}",
                 "a{$valueLength}",
             ];
+
             $format = join('', $formatParts);
 
             $payload .= pack(
@@ -110,5 +143,4 @@ class Params extends Record
 
         return $payload;
     }
-
 }

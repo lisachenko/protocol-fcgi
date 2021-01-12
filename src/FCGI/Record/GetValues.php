@@ -1,9 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+/*
+ * Protocol FCGI library
+ *
+ * @copyright Copyright 2021. Lisachenko Alexander <lisachenko.it@gmail.com>
+ * This source file is subject to the license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
 use Lisachenko\Protocol\FCGI;
-use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * GetValues API
@@ -29,16 +37,16 @@ use Lisachenko\Protocol\FCGI\Record;
  */
 class GetValues extends Params
 {
-
     /**
      * Constructs a request
      *
-     * @param array $keys List of keys to receive
+     * @param array                $keys List of keys to receive
+     *
+     * @phpstan-param list<string> $keys
      */
     public function __construct(array $keys = [])
     {
         parent::__construct(array_fill_keys($keys, ''));
         $this->type = FCGI::GET_VALUES;
     }
-
 }
