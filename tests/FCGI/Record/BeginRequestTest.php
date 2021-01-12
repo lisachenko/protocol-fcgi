@@ -1,4 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+/*
+ * Protocol FCGI library
+ *
+ * @copyright Copyright 2021. Lisachenko Alexander <lisachenko.it@gmail.com>
+ * This source file is subject to the license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
@@ -10,7 +19,7 @@ use Lisachenko\Protocol\FCGI;
  */
 class BeginRequestTest extends TestCase
 {
-    protected static $rawMessage = '01010000000800000001010000000000';
+    protected static string $rawMessage = '01010000000800000001010000000000';
 
     public function testPacking(): void
     {
@@ -24,7 +33,9 @@ class BeginRequestTest extends TestCase
 
     public function testUnpacking(): void
     {
-        $request = BeginRequest::unpack(hex2bin(self::$rawMessage));
+        /** @var string $binaryData */
+        $binaryData = hex2bin(self::$rawMessage);
+        $request    = BeginRequest::unpack($binaryData);
 
         $this->assertEquals(FCGI::BEGIN_REQUEST, $request->getType());
         $this->assertEquals(FCGI::RESPONDER, $request->getRole());

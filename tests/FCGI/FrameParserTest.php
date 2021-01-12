@@ -1,4 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+/*
+ * Protocol FCGI library
+ *
+ * @copyright Copyright 2021. Lisachenko Alexander <lisachenko.it@gmail.com>
+ * This source file is subject to the license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI;
 
@@ -13,9 +22,11 @@ class FrameParserTest extends TestCase
 {
     public function testHasFrame(): void
     {
+        /** @var string $incompletePacket */
         $incompletePacket = hex2bin('010100010008000000');
         $this->assertFalse(FrameParser::hasFrame($incompletePacket));
 
+        /** @var string $completePacket */
         $completePacket = hex2bin('01010001000800000001010000000000');
         $this->assertTrue(FrameParser::hasFrame($completePacket));
     }
@@ -23,6 +34,7 @@ class FrameParserTest extends TestCase
     public function testParsingFrame(): void
     {
         // one FCGI_BEGIN request with two empty FCGI_PARAMS request
+        /** @var string $dataStream */
         $dataStream = hex2bin('0101000100080000000101000000000001040001000000000104000100000000');
         $bufferSize = strlen($dataStream);
         $this->assertEquals(32, $bufferSize);

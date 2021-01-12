@@ -12,7 +12,7 @@ http://www.fastcgi.com/devkit/doc/fcgi-spec.html
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/?branch=master)
 [![Packagist](https://img.shields.io/packagist/v/lisachenko/protocol-fcgi.svg)](https://github.com/lisachenko/protocol-fcgi)
-[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%207.4-8892BF.svg)](https://php.net/)
 [![License](https://img.shields.io/packagist/l/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
 
 Usage
