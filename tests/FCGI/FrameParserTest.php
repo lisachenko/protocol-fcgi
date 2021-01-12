@@ -15,9 +15,6 @@ use PHPUnit\Framework\TestCase;
 use Lisachenko\Protocol\FCGI\Record\BeginRequest;
 use Lisachenko\Protocol\FCGI\Record\Params;
 
-/**
- * @author Alexander.Lisachenko
- */
 class FrameParserTest extends TestCase
 {
     public function testHasFrame(): void

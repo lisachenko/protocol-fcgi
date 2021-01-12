@@ -21,8 +21,6 @@ use Lisachenko\Protocol\FCGI\Record;
  * To provide for this evolution, the protocol includes the FCGI_UNKNOWN_TYPE management record.
  * When an application receives a management record whose type T it does not understand, the application responds
  * with {FCGI_UNKNOWN_TYPE, 0, {T}}.
- *
- * @author Alexander.Lisachenko
  */
 class UnknownType extends Record
 {
@@ -36,7 +34,7 @@ class UnknownType extends Record
      */
     protected string $reserved1;
 
-    public function __construct(int $type = 0, string $reserved = '')
+    public function __construct(int $type, string $reserved = '')
     {
         $this->type      = FCGI::UNKNOWN_TYPE;
         $this->type1     = $type;

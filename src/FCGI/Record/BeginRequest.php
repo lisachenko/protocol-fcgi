@@ -16,8 +16,6 @@ use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * The Web server sends a FCGI_BEGIN_REQUEST record to start a request.
- *
- * @author Alexander.Lisachenko
  */
 class BeginRequest extends Record
 {

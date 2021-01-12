@@ -16,8 +16,6 @@ use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * Params request record
- *
- * @author Alexander.Lisachenko
  */
 class Params extends Record
 {
@@ -34,7 +32,7 @@ class Params extends Record
      *
      * @phpstan-param array<string, string> $values
      */
-    public function __construct(array $values = [])
+    public function __construct(array $values)
     {
         $this->type   = FCGI::PARAMS;
         $this->values = $values;

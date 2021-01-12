@@ -14,9 +14,6 @@ namespace Lisachenko\Protocol\FCGI\Record;
 use Lisachenko\Protocol\FCGI;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @author Alexander.Lisachenko
- */
 class ParamsTest extends TestCase
 {
     protected static string $rawMessage ='

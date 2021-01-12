@@ -32,8 +32,6 @@ use Lisachenko\Protocol\FCGI;
  *   FCGI_MAX_REQS:   The maximum number of concurrent requests this application will accept, e.g. "1" or "50".
  *   FCGI_MPXS_CONNS: "0" if this application does not multiplex connections (i.e. handle concurrent requests
  *                    over each connection), "1" otherwise.
- *
- * @author Alexander.Lisachenko
  */
 class GetValuesResult extends Params
 {
@@ -42,7 +40,7 @@ class GetValuesResult extends Params
      *
      * @phpstan-param array<string, string> $values
      */
-    public function __construct(array $values = [])
+    public function __construct(array $values)
     {
         parent::__construct($values);
         $this->type = FCGI::GET_VALUES_RESULT;

@@ -14,9 +14,6 @@ namespace Lisachenko\Protocol\FCGI\Record;
 use PHPUnit\Framework\TestCase;
 use Lisachenko\Protocol\FCGI;
 
-/**
- * @author Alexander.Lisachenko
- */
 class UnknownTypeTest extends TestCase
 {
     protected static string $rawMessage = '010b0000000800002a57544621000000';

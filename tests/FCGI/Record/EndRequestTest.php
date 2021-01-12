@@ -14,9 +14,6 @@ namespace Lisachenko\Protocol\FCGI\Record;
 use PHPUnit\Framework\TestCase;
 use Lisachenko\Protocol\FCGI;
 
-/**
- * @author Alexander.Lisachenko
- */
 class EndRequestTest extends TestCase
 {
     protected static string $rawMessage = '01030000000800000000006400000000';

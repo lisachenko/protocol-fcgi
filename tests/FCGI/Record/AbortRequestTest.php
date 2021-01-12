@@ -14,9 +14,6 @@ namespace Lisachenko\Protocol\FCGI\Record;
 use PHPUnit\Framework\TestCase;
 use Lisachenko\Protocol\FCGI;
 
-/**
- * @author Alexander.Lisachenko
- */
 class AbortRequestTest extends TestCase
 {
     protected static string $rawMessage = '0102000100000000';

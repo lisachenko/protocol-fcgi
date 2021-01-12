@@ -17,8 +17,6 @@ use Lisachenko\Protocol\FCGI\Record;
 /**
  * The application sends a FCGI_END_REQUEST record to terminate a request, either because the application
  * has processed the request or because the application has rejected the request.
- *
- * @author Alexander.Lisachenko
  */
 class EndRequest extends Record
 {
