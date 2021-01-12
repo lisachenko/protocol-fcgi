@@ -21,7 +21,7 @@ use Lisachenko\Protocol\FCGI\Record;
  */
 class Stderr extends Record
 {
-    public function __construct(string $contentData = '')
+    public function __construct(string $contentData)
     {
         $this->type = FCGI::STDERR;
         $this->setContentData($contentData);

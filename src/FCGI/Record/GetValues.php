@@ -42,7 +42,7 @@ class GetValues extends Params
      *
      * @phpstan-param list<string> $keys
      */
-    public function __construct(array $keys = [])
+    public function __construct(array $keys)
     {
         parent::__construct(array_fill_keys($keys, ''));
         $this->type = FCGI::GET_VALUES;

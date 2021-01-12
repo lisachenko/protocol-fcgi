@@ -34,7 +34,7 @@ class UnknownType extends Record
      */
     protected string $reserved1;
 
-    public function __construct(int $type = 0, string $reserved = '')
+    public function __construct(int $type, string $reserved = '')
     {
         $this->type      = FCGI::UNKNOWN_TYPE;
         $this->type1     = $type;

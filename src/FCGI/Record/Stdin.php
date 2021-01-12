@@ -21,7 +21,7 @@ use Lisachenko\Protocol\FCGI\Record;
  */
 class Stdin extends Record
 {
-    public function __construct(string $contentData = '')
+    public function __construct(string $contentData)
     {
         $this->type = FCGI::STDIN;
         $this->setContentData($contentData);

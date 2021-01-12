@@ -21,7 +21,7 @@ use Lisachenko\Protocol\FCGI\Record;
  */
 class Data extends Record
 {
-    public function __construct(string $contentData = '')
+    public function __construct(string $contentData)
     {
         $this->type = FCGI::DATA;
         $this->setContentData($contentData);

@@ -40,7 +40,7 @@ class GetValuesResult extends Params
      *
      * @phpstan-param array<string, string> $values
      */
-    public function __construct(array $values = [])
+    public function __construct(array $values)
     {
         parent::__construct($values);
         $this->type = FCGI::GET_VALUES_RESULT;

@@ -19,7 +19,7 @@ use Lisachenko\Protocol\FCGI\Record;
  */
 class AbortRequest extends Record
 {
-    public function __construct(int $requestId = 0)
+    public function __construct(int $requestId)
     {
         $this->type = FCGI::ABORT_REQUEST;
         $this->setRequestId($requestId);

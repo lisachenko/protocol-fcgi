@@ -32,7 +32,7 @@ class Params extends Record
      *
      * @phpstan-param array<string, string> $values
      */
-    public function __construct(array $values = [])
+    public function __construct(array $values)
     {
         $this->type   = FCGI::PARAMS;
         $this->values = $values;
