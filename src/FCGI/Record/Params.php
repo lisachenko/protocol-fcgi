@@ -16,8 +16,6 @@ use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * Params request record
- *
- * @author Alexander.Lisachenko
  */
 class Params extends Record
 {

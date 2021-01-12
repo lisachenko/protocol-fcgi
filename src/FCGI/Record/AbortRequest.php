@@ -16,8 +16,6 @@ use Lisachenko\Protocol\FCGI\Record;
 
 /**
  * The Web server sends a FCGI_ABORT_REQUEST record to abort a request
- *
- * @author Alexander.Lisachenko
  */
 class AbortRequest extends Record
 {

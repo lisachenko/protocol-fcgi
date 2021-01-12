@@ -16,8 +16,6 @@ use ReflectionClass;
 
 /**
  * FCGI record.
- *
- * @author Alexander.Lisachenko
  */
 class Record
 {

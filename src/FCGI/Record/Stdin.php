@@ -18,8 +18,6 @@ use Lisachenko\Protocol\FCGI\Record;
  * Stdin binary stream
  *
  * FCGI_STDIN is a stream record type used in sending arbitrary data from the Web server to the application
- *
- * @author Alexander.Lisachenko
  */
 class Stdin extends Record
 {

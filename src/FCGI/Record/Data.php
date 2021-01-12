@@ -18,8 +18,6 @@ use Lisachenko\Protocol\FCGI\Record;
  * Data binary stream
  *
  * FCGI_DATA is a second stream record type used to send additional data to the application.
- *
- * @author Alexander.Lisachenko
  */
 class Data extends Record
 {

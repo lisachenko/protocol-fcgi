@@ -15,8 +15,6 @@ use Lisachenko\Protocol\FCGI;
 
 /**
  * Utility class to simplify parsing of FCGI protocol data.
- *
- * @author Alexander.Lisachenko
  */
 class FrameParser
 {

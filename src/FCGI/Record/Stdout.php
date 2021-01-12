@@ -18,8 +18,6 @@ use Lisachenko\Protocol\FCGI\Record;
  * Stdout binary stream
  *
  * FCGI_STDOUT is a stream record for sending arbitrary data from the application to the Web server
- *
- * @author Alexander.Lisachenko
  */
 class Stdout extends Record
 {

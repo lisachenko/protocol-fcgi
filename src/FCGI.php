@@ -13,8 +13,6 @@ namespace Lisachenko\Protocol;
 
 /**
  * FCGI constants.
- *
- * @author Alexander.Lisachenko
  */
 class FCGI
 {

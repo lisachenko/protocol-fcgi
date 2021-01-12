@@ -21,8 +21,6 @@ use Lisachenko\Protocol\FCGI\Record;
  * To provide for this evolution, the protocol includes the FCGI_UNKNOWN_TYPE management record.
  * When an application receives a management record whose type T it does not understand, the application responds
  * with {FCGI_UNKNOWN_TYPE, 0, {T}}.
- *
- * @author Alexander.Lisachenko
  */
 class UnknownType extends Record
 {

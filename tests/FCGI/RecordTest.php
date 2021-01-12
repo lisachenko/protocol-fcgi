@@ -14,9 +14,6 @@ namespace Lisachenko\Protocol\FCGI;
 use PHPUnit\Framework\TestCase;
 use Lisachenko\Protocol\FCGI;
 
-/**
- * @author Alexander.Lisachenko
- */
 class RecordTest extends TestCase
 {
     // from the wireshark captured traffic

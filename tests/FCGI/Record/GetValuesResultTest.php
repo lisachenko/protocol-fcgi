@@ -14,9 +14,6 @@ namespace Lisachenko\Protocol\FCGI\Record;
 use PHPUnit\Framework\TestCase;
 use Lisachenko\Protocol\FCGI;
 
-/**
- * @author Alexander.Lisachenko
- */
 class GetValuesResultTest extends TestCase
 {
     protected static string $rawMessage = '010a0000001206000f01464347495f4d5058535f434f4e4e5331000000000000';
