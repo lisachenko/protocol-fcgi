@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
          colors="true"
-         bootstrap="./vendor/autoload.php">
-    <coverage>
-        <include>
-            <directory>./src/</directory>
-        </include>
-    </coverage>
-    <php>
-        <!--Path to the autoload file that should be used. Use a composer autoloader by default-->
-        <const name="AUTOLOAD_PATH" value="./vendor/autoload.php"/>
-    </php>
+         failOnRisky="true"
+         failOnWarning="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true">
     <testsuites>
         <testsuite name="FCGI protocol Test Suite">
-            <directory>./tests/</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
 </phpunit>

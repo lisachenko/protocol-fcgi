@@ -86,8 +86,6 @@ class BeginRequest extends Record
      */
     protected static function unpackPayload($self, string $binaryData): void
     {
-        assert($self instanceof self);
-
         /** @phpstan-var false|array{role: int, flags: int, reserved: string} */
         $payload = unpack("nrole/Cflags/a5reserved", $binaryData);
         if ($payload === false) {
