@@ -27,7 +27,7 @@ class RecordTest extends TestCase
 
         // Verify all general fields
         $this->assertEquals(FCGI::VERSION_1, $record->getVersion());
-        $this->assertEquals(FCGI::BEGIN_REQUEST, $record->getType());
+        $this->assertSame(RecordType::BeginRequest, $record->getType());
         $this->assertEquals(1, $record->getRequestId());
         $this->assertEquals(8, $record->getContentLength());
         $this->assertEquals(0, $record->getPaddingLength());
@@ -45,7 +45,7 @@ class RecordTest extends TestCase
 
         $this->assertEquals($packet, hex2bin('010b0005000503003132333435000000'));
         $result = Record::unpack($packet);
-        $this->assertEquals(FCGI::UNKNOWN_TYPE, $result->getType());
+        $this->assertSame(RecordType::UnknownType, $result->getType());
         $this->assertEquals(5, $result->getRequestId());
         $this->assertEquals('12345', $result->getContentData());
     }

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Lisachenko\Protocol\FCGI\Record;
 
 use PHPUnit\Framework\TestCase;
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 class AbortRequestTest extends TestCase
 {
@@ -21,7 +21,7 @@ class AbortRequestTest extends TestCase
     public function testPacking(): void
     {
         $request = new AbortRequest(1);
-        $this->assertEquals(FCGI::ABORT_REQUEST, $request->getType());
+        $this->assertSame(RecordType::AbortRequest, $request->getType());
         $this->assertEquals(1, $request->getRequestId());
 
         $this->assertSame(self::$rawMessage, bin2hex((string) $request));
@@ -32,7 +32,7 @@ class AbortRequestTest extends TestCase
         /** @var string $binaryData */
         $binaryData = hex2bin(self::$rawMessage);
         $request    = AbortRequest::unpack($binaryData);
-        $this->assertEquals(FCGI::ABORT_REQUEST, $request->getType());
+        $this->assertSame(RecordType::AbortRequest, $request->getType());
         $this->assertEquals(1, $request->getRequestId());
     }
 }

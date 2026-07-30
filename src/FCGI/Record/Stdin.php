@@ -11,19 +11,19 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
 use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 /**
  * Stdin binary stream
  *
  * FCGI_STDIN is a stream record type used in sending arbitrary data from the Web server to the application
  */
-class Stdin extends Record
+final class Stdin extends Record
 {
     public function __construct(string $contentData)
     {
-        $this->type = FCGI::STDIN;
+        $this->type = RecordType::Stdin;
         $this->setContentData($contentData);
     }
 }

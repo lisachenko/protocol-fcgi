@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Lisachenko\Protocol\FCGI\Record;
 
 use PHPUnit\Framework\TestCase;
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 class StdoutTest extends TestCase
 {
@@ -22,7 +22,7 @@ class StdoutTest extends TestCase
     {
         $request = new Stdout('test');
         $this->assertEquals('test', $request->getContentData());
-        $this->assertEquals(FCGI::STDOUT, $request->getType());
+        $this->assertSame(RecordType::Stdout, $request->getType());
         $this->assertSame(self::$rawMessage, bin2hex((string) $request));
     }
 
@@ -31,7 +31,7 @@ class StdoutTest extends TestCase
         /** @var string $binaryData */
         $binaryData = hex2bin(self::$rawMessage);
         $request    = Stdout::unpack($binaryData);
-        $this->assertEquals(FCGI::STDOUT, $request->getType());
+        $this->assertSame(RecordType::Stdout, $request->getType());
         $this->assertEquals('test', $request->getContentData());
     }
 }

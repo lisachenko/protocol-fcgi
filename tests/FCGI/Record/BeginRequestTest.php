@@ -13,6 +13,8 @@ namespace Lisachenko\Protocol\FCGI\Record;
 
 use PHPUnit\Framework\TestCase;
 use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
+use Lisachenko\Protocol\FCGI\Role;
 
 class BeginRequestTest extends TestCase
 {
@@ -20,9 +22,9 @@ class BeginRequestTest extends TestCase
 
     public function testPacking(): void
     {
-        $request = new BeginRequest(FCGI::RESPONDER, FCGI::KEEP_CONN);
-        $this->assertEquals(FCGI::BEGIN_REQUEST, $request->getType());
-        $this->assertEquals(FCGI::RESPONDER, $request->getRole());
+        $request = new BeginRequest(Role::Responder, FCGI::KEEP_CONN);
+        $this->assertSame(RecordType::BeginRequest, $request->getType());
+        $this->assertSame(Role::Responder, $request->getRole());
         $this->assertEquals(FCGI::KEEP_CONN, $request->getFlags());
 
         $this->assertSame(self::$rawMessage, bin2hex((string) $request));
@@ -34,8 +36,8 @@ class BeginRequestTest extends TestCase
         $binaryData = hex2bin(self::$rawMessage);
         $request    = BeginRequest::unpack($binaryData);
 
-        $this->assertEquals(FCGI::BEGIN_REQUEST, $request->getType());
-        $this->assertEquals(FCGI::RESPONDER, $request->getRole());
+        $this->assertSame(RecordType::BeginRequest, $request->getType());
+        $this->assertSame(Role::Responder, $request->getRole());
         $this->assertEquals(FCGI::KEEP_CONN, $request->getFlags());
     }
 }

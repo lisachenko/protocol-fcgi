@@ -11,46 +11,28 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\ProtocolException;
+use Lisachenko\Protocol\FCGI\ProtocolStatus;
 use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 /**
  * The application sends a FCGI_END_REQUEST record to terminate a request, either because the application
  * has processed the request or because the application has rejected the request.
  */
-class EndRequest extends Record
+final class EndRequest extends Record
 {
     /**
-     * The appStatus component is an application-level status code. Each role documents its usage of appStatus.
+     * @param ProtocolStatus $protocolStatus The protocol-level status code
+     * @param int            $appStatus      The application-level status code, each role documents its usage
+     * @param string         $reserved1      Reserved data, 3 bytes maximum
      */
-    protected int $appStatus = 0;
-
-    /**
-     * The protocolStatus component is a protocol-level status code.
-     *
-     * The possible protocolStatus values are:
-     *   FCGI_REQUEST_COMPLETE: normal end of request.
-     *   FCGI_CANT_MPX_CONN: rejecting a new request.
-     *      This happens when a Web server sends concurrent requests over one connection to an application that is
-     *      designed to process one request at a time per connection.
-     *   FCGI_OVERLOADED: rejecting a new request.
-     *      This happens when the application runs out of some resource, e.g. database connections.
-     *   FCGI_UNKNOWN_ROLE: rejecting a new request.
-     *      This happens when the Web server has specified a role that is unknown to the application.
-     */
-    protected int $protocolStatus = FCGI::REQUEST_COMPLETE;
-
-    /**
-     * Reserved data, 3 bytes maximum
-     */
-    protected string $reserved1;
-
-    public function __construct(int $protocolStatus = FCGI::REQUEST_COMPLETE, int $appStatus = 0, string $reserved = '')
-    {
-        $this->type           = FCGI::END_REQUEST;
-        $this->protocolStatus = $protocolStatus;
-        $this->appStatus      = $appStatus;
-        $this->reserved1      = $reserved;
+    public function __construct(
+        protected ProtocolStatus $protocolStatus = ProtocolStatus::RequestComplete,
+        protected int $appStatus = 0,
+        protected string $reserved1 = '',
+    ) {
+        $this->type = RecordType::EndRequest;
         $this->setContentData($this->packPayload());
     }
 
@@ -65,49 +47,33 @@ class EndRequest extends Record
     }
 
     /**
-     * Returns the protocol status
-     *
-     * The possible protocolStatus values are:
-     *   FCGI_REQUEST_COMPLETE: normal end of request.
-     *   FCGI_CANT_MPX_CONN: rejecting a new request.
-     *      This happens when a Web server sends concurrent requests over one connection to an application that is
-     *      designed to process one request at a time per connection.
-     *   FCGI_OVERLOADED: rejecting a new request.
-     *      This happens when the application runs out of some resource, e.g. database connections.
-     *   FCGI_UNKNOWN_ROLE: rejecting a new request.
-     *      This happens when the Web server has specified a role that is unknown to the application.
+     * Returns the protocol-level status code
      */
-    public function getProtocolStatus(): int
+    public function getProtocolStatus(): ProtocolStatus
     {
         return $this->protocolStatus;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected static function unpackPayload($self, string $binaryData): void
+    protected function unpackPayload(string $binaryData): void
     {
-        /** @phpstan-var false|array{appStatus: int, protocolStatus: int, reserved: string} */
+        /** @var false|array{appStatus: int, protocolStatus: int, reserved: string} $payload */
         $payload = unpack("NappStatus/CprotocolStatus/a3reserved", $binaryData);
         if ($payload === false) {
-            throw new \RuntimeException('Can not unpack data from the binary buffer');
+            throw new ProtocolException('Can not unpack the FCGI_EndRequestBody');
         }
-        [
-            $self->appStatus,
-            $self->protocolStatus,
-            $self->reserved1
-        ] = array_values($payload);
+
+        $this->appStatus      = $payload['appStatus'];
+        $this->protocolStatus = ProtocolStatus::tryFrom($payload['protocolStatus'])
+            ?? throw new ProtocolException("Invalid FastCGI protocol status {$payload['protocolStatus']} received");
+        $this->reserved1      = $payload['reserved'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function packPayload(): string
     {
         return pack(
             "NCa3",
             $this->appStatus,
-            $this->protocolStatus,
+            $this->protocolStatus->value,
             $this->reserved1
         );
     }

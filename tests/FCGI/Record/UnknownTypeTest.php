@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Lisachenko\Protocol\FCGI\Record;
 
 use PHPUnit\Framework\TestCase;
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 class UnknownTypeTest extends TestCase
 {
@@ -21,7 +21,7 @@ class UnknownTypeTest extends TestCase
     public function testPacking(): void
     {
         $request = new UnknownType(42, 'WTF!');
-        $this->assertEquals(FCGI::UNKNOWN_TYPE, $request->getType());
+        $this->assertSame(RecordType::UnknownType, $request->getType());
         $this->assertEquals(42, $request->getUnrecognizedType());
 
         $this->assertSame(self::$rawMessage, bin2hex((string) $request));
@@ -33,7 +33,7 @@ class UnknownTypeTest extends TestCase
         $binaryData = hex2bin(self::$rawMessage);
         $request    = UnknownType::unpack($binaryData);
 
-        $this->assertEquals(FCGI::UNKNOWN_TYPE, $request->getType());
+        $this->assertSame(RecordType::UnknownType, $request->getType());
         $this->assertEquals(42, $request->getUnrecognizedType());
     }
 }

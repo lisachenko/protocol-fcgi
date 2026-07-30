@@ -29,6 +29,9 @@ and **servers** (long-running PHP daemons that nginx can speak to natively).
   recommends
 - 🏷️ **Full name-value pair encoding** — including the 4-byte long form for names and
   values over 127 bytes
+- 🎯 **Native enums for the protocol vocabulary** — record types, roles and protocol
+  statuses are backed enums (`RecordType`, `Role`, `ProtocolStatus`), so invalid wire
+  values fail fast with a dedicated `ProtocolException`
 - 🪶 **Zero runtime dependencies** — pure PHP, nothing but the language itself
 - 🔒 **Strict types + PHPStan at the maximum level** — the whole codebase (tests
   included) passes static analysis at the strictest setting
@@ -54,13 +57,13 @@ available at [fast-cgi.github.io/spec](https://fast-cgi.github.io/spec).
 ```php
 <?php
 
-use Lisachenko\Protocol\FCGI;
 use Lisachenko\Protocol\FCGI\FrameParser;
 use Lisachenko\Protocol\FCGI\Record\BeginRequest;
 use Lisachenko\Protocol\FCGI\Record\EndRequest;
 use Lisachenko\Protocol\FCGI\Record\Params;
 use Lisachenko\Protocol\FCGI\Record\Stdin;
 use Lisachenko\Protocol\FCGI\Record\Stdout;
+use Lisachenko\Protocol\FCGI\Role;
 
 include 'vendor/autoload.php';
 
@@ -70,7 +73,7 @@ $phpSocket = fsockopen('127.0.0.1', 9001, $errorNumber, $errorString);
 // Prepare the request: begin, pass parameters, then close the input stream.
 // Empty Params and Stdin records mark the end of the corresponding stream.
 $packet  = '';
-$packet .= new BeginRequest(FCGI::RESPONDER);
+$packet .= new BeginRequest(Role::Responder);
 $packet .= new Params(['SCRIPT_FILENAME' => '/var/www/some_file.php']);
 $packet .= new Params([]);
 $packet .= new Stdin('');

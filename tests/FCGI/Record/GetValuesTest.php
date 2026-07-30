@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Lisachenko\Protocol\FCGI\Record;
 
 use PHPUnit\Framework\TestCase;
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 class GetValuesTest extends TestCase
 {
@@ -21,7 +21,7 @@ class GetValuesTest extends TestCase
     public function testPacking(): void
     {
         $request = new GetValues(['FCGI_MPXS_CONNS']);
-        $this->assertEquals(FCGI::GET_VALUES, $request->getType());
+        $this->assertSame(RecordType::GetValues, $request->getType());
         $this->assertEquals(['FCGI_MPXS_CONNS' => ''], $request->getValues());
 
         $this->assertSame(self::$rawMessage, bin2hex((string) $request));
@@ -33,7 +33,7 @@ class GetValuesTest extends TestCase
         $binaryData = hex2bin(self::$rawMessage);
         $request    = GetValues::unpack($binaryData);
 
-        $this->assertEquals(FCGI::GET_VALUES, $request->getType());
+        $this->assertSame(RecordType::GetValues, $request->getType());
         $this->assertEquals(['FCGI_MPXS_CONNS' => ''], $request->getValues());
     }
 }

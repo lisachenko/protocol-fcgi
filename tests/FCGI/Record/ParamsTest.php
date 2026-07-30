@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
 use PHPUnit\Framework\TestCase;
 
 class ParamsTest extends TestCase
@@ -22,7 +22,7 @@ class ParamsTest extends TestCase
         4152455048502f50726f746f636f6c2d464347490000000000';
 
     /**
-     * @var string[]
+     * @var array<string, string>
      */
     protected static array $params = [
         'SCRIPT_FILENAME'   => '/home/test.php',
@@ -33,7 +33,7 @@ class ParamsTest extends TestCase
     public function testPacking(): void
     {
         $request = new Params(self::$params);
-        $this->assertEquals(FCGI::PARAMS, $request->getType());
+        $this->assertSame(RecordType::Params, $request->getType());
         $this->assertEquals(self::$params, $request->getValues());
 
         $this->assertSame(preg_replace('/\s+/', '', self::$rawMessage), bin2hex((string) $request));
@@ -48,7 +48,35 @@ class ParamsTest extends TestCase
         }
         $request = Params::unpack($binaryData);
 
-        $this->assertEquals(FCGI::PARAMS, $request->getType());
+        $this->assertSame(RecordType::Params, $request->getType());
         $this->assertEquals(self::$params, $request->getValues());
+    }
+
+    /**
+     * Names and values over 127 bytes use the long (4-byte) length form with the top bit set
+     */
+    public function testLongNameValueRoundTrip(): void
+    {
+        $name  = str_repeat('N', 150);
+        $value = str_repeat('V', 200);
+        $request = new Params([$name => $value, 'SHORT' => 'yes']);
+
+        $restored = Params::unpack((string) $request);
+
+        $this->assertSame([$name => $value, 'SHORT' => 'yes'], $restored->getValues());
+    }
+
+    /**
+     * An empty FCGI_PARAMS record marks the end of the parameter stream and is
+     * hydrated without running the constructor
+     */
+    public function testEmptyParamsRecordHasNoValues(): void
+    {
+        /** @var string $binaryData */
+        $binaryData = hex2bin('0104000100000000');
+        $record     = Params::unpack($binaryData);
+
+        $this->assertSame(RecordType::Params, $record->getType());
+        $this->assertSame([], $record->getValues());
     }
 }

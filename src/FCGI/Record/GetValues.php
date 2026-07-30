@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 /**
  * GetValues API
@@ -33,18 +33,16 @@ use Lisachenko\Protocol\FCGI;
  *   FCGI_MPXS_CONNS: "0" if this application does not multiplex connections (i.e. handle concurrent requests
  *                    over each connection), "1" otherwise.
  */
-class GetValues extends Params
+final class GetValues extends Params
 {
     /**
      * Constructs a request
      *
-     * @param array                $keys List of keys to receive
-     *
-     * @phpstan-param list<string> $keys
+     * @param list<string> $keys List of keys to receive
      */
     public function __construct(array $keys)
     {
         parent::__construct(array_fill_keys($keys, ''));
-        $this->type = FCGI::GET_VALUES;
+        $this->type = RecordType::GetValues;
     }
 }

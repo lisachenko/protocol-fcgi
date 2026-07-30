@@ -18,6 +18,8 @@ low-level building blocks (records and a frame parser) for writing FastCGI clien
 | Path | Purpose |
 |------|---------|
 | `src/FCGI.php` | Protocol-level constants (header length/format, version, flags) |
+| `src/FCGI/RecordType.php`, `Role.php`, `ProtocolStatus.php` | Int-backed enums for the protocol vocabulary; `RecordType::recordClass()` maps types to record classes |
+| `src/FCGI/ProtocolException.php` | Thrown on malformed/truncated buffers and invalid wire values |
 | `src/FCGI/Record.php` | Base record: header pack/unpack, payload handling, `__toString()` emits wire bytes |
 | `src/FCGI/FrameParser.php` | Turns a binary buffer into typed `Record` instances (`hasFrame()` / `parseFrame()`) |
 | `src/FCGI/Record/*.php` | One class per FCGI record type (BeginRequest, EndRequest, Params, Stdin, Stdout, Stderr, Data, AbortRequest, GetValues, GetValuesResult, UnknownType) |
@@ -61,6 +63,9 @@ This library implements a binary network protocol. Byte layouts must never chang
   parsed frame.
 - Unpacking creates records **without invoking constructors** (hydration), so the raw
   wire bytes are preserved exactly even for legal-but-non-canonical peer encodings.
+  Record-specific fields are hydrated by the protected instance method
+  `unpackPayload()`; keep class-level property defaults (not constructor promotion)
+  for any field that must survive a zero-length payload (see `Params::$values`).
 - `Params` name-value pairs use variable-length encoding: 1-byte lengths for < 128,
   4-byte lengths (high bit set) otherwise.
 

@@ -11,8 +11,9 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\ProtocolException;
 use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 /**
  * Record for unknown queries
@@ -22,23 +23,17 @@ use Lisachenko\Protocol\FCGI\Record;
  * When an application receives a management record whose type T it does not understand, the application responds
  * with {FCGI_UNKNOWN_TYPE, 0, {T}}.
  */
-class UnknownType extends Record
+final class UnknownType extends Record
 {
     /**
-     * Type of the unrecognized management record.
+     * @param int    $unrecognizedType Type of the unrecognized management record
+     * @param string $reserved1        Reserved data, 7 bytes maximum
      */
-    protected int $type1;
-
-    /**
-     * Reserved data, 7 bytes maximum
-     */
-    protected string $reserved1;
-
-    public function __construct(int $type, string $reserved = '')
-    {
-        $this->type      = FCGI::UNKNOWN_TYPE;
-        $this->type1     = $type;
-        $this->reserved1 = $reserved;
+    public function __construct(
+        protected int $unrecognizedType,
+        protected string $reserved1 = '',
+    ) {
+        $this->type = RecordType::UnknownType;
         $this->setContentData($this->packPayload());
     }
 
@@ -47,30 +42,26 @@ class UnknownType extends Record
      */
     public function getUnrecognizedType(): int
     {
-        return $this->type1;
+        return $this->unrecognizedType;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function unpackPayload($self, string $binaryData): void
+    protected function unpackPayload(string $binaryData): void
     {
-        /** @phpstan-var false|array{type: int, reserved: string} */
+        /** @var false|array{type: int, reserved: string} $payload */
         $payload = unpack("Ctype/a7reserved", $binaryData);
         if ($payload === false) {
-            throw new \RuntimeException('Can not unpack data from the binary buffer');
+            throw new ProtocolException('Can not unpack the FCGI_UnknownTypeBody');
         }
-        [$self->type1, $self->reserved1] = array_values($payload);
+
+        $this->unrecognizedType = $payload['type'];
+        $this->reserved1        = $payload['reserved'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function packPayload(): string
     {
         return pack(
             "Ca7",
-            $this->type1,
+            $this->unrecognizedType,
             $this->reserved1
         );
     }

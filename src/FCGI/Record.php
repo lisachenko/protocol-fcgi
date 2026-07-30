@@ -13,11 +13,12 @@ namespace Lisachenko\Protocol\FCGI;
 
 use Lisachenko\Protocol\FCGI;
 use ReflectionClass;
+use Stringable;
 
 /**
  * FCGI record.
  */
-class Record
+class Record implements Stringable
 {
     /**
      * Identifies the FastCGI protocol version.
@@ -27,7 +28,7 @@ class Record
     /**
      * Identifies the FastCGI record type, i.e. the general function that the record performs.
      */
-    protected int $type = FCGI::UNKNOWN_TYPE;
+    protected RecordType $type = RecordType::UnknownType;
 
     /**
      * Identifies the FastCGI request to which the record belongs.
@@ -60,33 +61,40 @@ class Record
     private string $paddingData = '';
 
     /**
-     * Unpacks the message from the binary data buffer
+     * Per-class reflection cache to avoid paying the reflection cost for every parsed record.
      *
-     * @return static
+     * @var array<class-string<Record>, ReflectionClass<covariant Record>>
      */
-    final public static function unpack(string $binaryData): self
+    private static array $reflectionCache = [];
+
+    /**
+     * Unpacks the message from the binary data buffer
+     */
+    final public static function unpack(string $binaryData): static
     {
         /** @var static $self */
-        $self   = (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
+        $self = (self::$reflectionCache[static::class] ??= new ReflectionClass(static::class))
+            ->newInstanceWithoutConstructor();
 
-        /** @phpstan-var false|array{version: int, type: int, requestId: int, contentLength: int, paddingLength: int, reserved: int} */
-        $packet = unpack(FCGI::HEADER_FORMAT, $binaryData);
-        if ($packet === false) {
-            throw new \RuntimeException('Can not unpack data from the binary buffer');
+        /** @var false|array{version: int, type: int, requestId: int, contentLength: int, paddingLength: int, reserved: int} $header */
+        $header = unpack(FCGI::HEADER_FORMAT, $binaryData);
+        if ($header === false) {
+            throw new ProtocolException('Can not unpack the FastCGI record header');
         }
-        [
-            $self->version,
-            $self->type,
-            $self->requestId,
-            $self->contentLength,
-            $self->paddingLength,
-            $self->reserved
-        ] = array_values($packet);
 
-        $payload = substr($binaryData, FCGI::HEADER_LEN);
-        self::unpackPayload($self, $payload);
-        if (static::class !== self::class && $self->contentLength > 0) {
-            static::unpackPayload($self, $payload);
+        $self->version       = $header['version'];
+        $self->type          = RecordType::tryFrom($header['type'])
+            ?? throw new ProtocolException("Invalid FastCGI record type {$header['type']} received");
+        $self->requestId     = $header['requestId'];
+        $self->contentLength = $header['contentLength'];
+        $self->paddingLength = $header['paddingLength'];
+        $self->reserved      = $header['reserved'];
+
+        $self->contentData = substr($binaryData, FCGI::HEADER_LEN, $self->contentLength);
+        $self->paddingData = substr($binaryData, FCGI::HEADER_LEN + $self->contentLength, $self->paddingLength);
+
+        if ($self->contentLength > 0) {
+            $self->unpackPayload($self->contentData);
         }
 
         return $self;
@@ -100,7 +108,7 @@ class Record
         $headerPacket = pack(
             "CCnnCC",
             $this->version,
-            $this->type,
+            $this->type->value,
             $this->requestId,
             $this->contentLength,
             $this->paddingLength,
@@ -116,7 +124,7 @@ class Record
     /**
      * Sets the content data and adjusts the length fields
      */
-    public function setContentData(string $data): self
+    public function setContentData(string $data): static
     {
         $this->contentData   = $data;
         $this->contentLength = strlen($this->contentData);
@@ -145,7 +153,7 @@ class Record
     /**
      * Returns record type
      */
-    public function getType(): int
+    public function getType(): RecordType
     {
         return $this->type;
     }
@@ -164,7 +172,7 @@ class Record
      * There should be only one unique ID for all active requests,
      * use random number or preferably resetting auto-increment.
      */
-    public function setRequestId(int $requestId): self
+    public function setRequestId(int $requestId): static
     {
         $this->requestId = $requestId;
 
@@ -188,22 +196,13 @@ class Record
     }
 
     /**
-     * Method to unpack the payload for the record.
+     * Hydrates record-specific fields from the raw content bytes.
      *
-     * NB: Default implementation will be always called
-     * @param static $self
+     * The default implementation is a no-op: the base record exposes
+     * its raw payload via getContentData().
      */
-    protected static function unpackPayload(Record $self, string $binaryData): void
+    protected function unpackPayload(string $binaryData): void
     {
-        /** @phpstan-var false|array{contentData: string, paddingData: string} */
-        $payload = unpack("a{$self->contentLength}contentData/a{$self->paddingLength}paddingData", $binaryData);
-        if ($payload === false) {
-            throw new \RuntimeException('Can not unpack data from the binary buffer');
-        }
-        [
-            $self->contentData,
-            $self->paddingData
-        ] = array_values($payload);
     }
 
     /**

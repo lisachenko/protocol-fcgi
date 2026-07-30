@@ -11,57 +11,34 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\ProtocolException;
 use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\RecordType;
+use Lisachenko\Protocol\FCGI\Role;
 
 /**
  * The Web server sends a FCGI_BEGIN_REQUEST record to start a request.
  */
-class BeginRequest extends Record
+final class BeginRequest extends Record
 {
     /**
-     * The role component sets the role the Web server expects the application to play.
-     * The currently-defined roles are:
-     *   FCGI_RESPONDER
-     *   FCGI_AUTHORIZER
-     *   FCGI_FILTER
+     * @param Role   $role      The role the Web server expects the application to play
+     * @param int    $flags     Bit mask controlling connection shutdown, see FCGI::KEEP_CONN
+     * @param string $reserved1 Reserved data, 5 bytes maximum
      */
-    protected int $role = FCGI::UNKNOWN_ROLE;
-
-    /**
-     * The flags component contains a bit that controls connection shutdown.
-     *
-     * flags & FCGI_KEEP_CONN:
-     *   If zero, the application closes the connection after responding to this request.
-     *   If not zero, the application does not close the connection after responding to this request;
-     *   the Web server retains responsibility for the connection.
-     */
-    protected int $flags;
-
-    /**
-     * Reserved data, 5 bytes maximum
-     */
-    protected string $reserved1;
-
-    public function __construct(int $role = FCGI::UNKNOWN_ROLE, int $flags = 0, string $reserved = '')
-    {
-        $this->type      = FCGI::BEGIN_REQUEST;
-        $this->role      = $role;
-        $this->flags     = $flags;
-        $this->reserved1 = $reserved;
+    public function __construct(
+        protected Role $role,
+        protected int $flags = 0,
+        protected string $reserved1 = '',
+    ) {
+        $this->type = RecordType::BeginRequest;
         $this->setContentData($this->packPayload());
     }
 
     /**
-     * Returns the role
-     *
-     * The role component sets the role the Web server expects the application to play.
-     * The currently-defined roles are:
-     *   FCGI_RESPONDER
-     *   FCGI_AUTHORIZER
-     *   FCGI_FILTER
+     * Returns the role the Web server expects the application to play
      */
-    public function getRole(): int
+    public function getRole(): Role
     {
         return $this->role;
     }
@@ -81,31 +58,25 @@ class BeginRequest extends Record
         return $this->flags;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected static function unpackPayload($self, string $binaryData): void
+    protected function unpackPayload(string $binaryData): void
     {
-        /** @phpstan-var false|array{role: int, flags: int, reserved: string} */
+        /** @var false|array{role: int, flags: int, reserved: string} $payload */
         $payload = unpack("nrole/Cflags/a5reserved", $binaryData);
         if ($payload === false) {
-            throw new \RuntimeException('Can not unpack data from the binary buffer');
+            throw new ProtocolException('Can not unpack the FCGI_BeginRequestBody');
         }
-        [
-            $self->role,
-            $self->flags,
-            $self->reserved1
-        ] = array_values($payload);
+
+        $this->role      = Role::tryFrom($payload['role'])
+            ?? throw new ProtocolException("Invalid FastCGI role {$payload['role']} received");
+        $this->flags     = $payload['flags'];
+        $this->reserved1 = $payload['reserved'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function packPayload(): string
     {
         return pack(
             "nCa5",
-            $this->role,
+            $this->role->value,
             $this->flags,
             $this->reserved1
         );
