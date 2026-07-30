@@ -54,4 +54,22 @@ class FrameParserTest extends TestCase
 
         $this->assertEquals(0, strlen($dataStream));
     }
+
+    public function testParseFrameRejectsInvalidRecordType(): void
+    {
+        /** @var string $binaryData */
+        $binaryData = hex2bin('010c000100000000'); // type 12 is not defined by the protocol
+        $this->expectException(ProtocolException::class);
+        $this->expectExceptionMessage('Invalid FastCGI record type 12 received');
+        FrameParser::parseFrame($binaryData);
+    }
+
+    public function testParseFrameRejectsTruncatedBuffer(): void
+    {
+        /** @var string $binaryData */
+        $binaryData = hex2bin('0101');
+        $this->expectException(ProtocolException::class);
+        $this->expectExceptionMessage('Not enough data in the buffer to parse');
+        FrameParser::parseFrame($binaryData);
+    }
 }
