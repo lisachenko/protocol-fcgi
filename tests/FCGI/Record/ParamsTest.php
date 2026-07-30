@@ -22,7 +22,7 @@ class ParamsTest extends TestCase
         4152455048502f50726f746f636f6c2d464347490000000000';
 
     /**
-     * @var string[]
+     * @var array<string, string>
      */
     protected static array $params = [
         'SCRIPT_FILENAME'   => '/home/test.php',
