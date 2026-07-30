@@ -54,7 +54,6 @@ class Params extends Record
      */
     protected static function unpackPayload($self, string $binaryData): void
     {
-        assert($self instanceof self);
         $currentOffset = 0;
         do {
             /** @phpstan-var false|array{nameLengthHigh: int} */

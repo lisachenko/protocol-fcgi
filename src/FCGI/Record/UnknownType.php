@@ -55,8 +55,6 @@ class UnknownType extends Record
      */
     public static function unpackPayload($self, string $binaryData): void
     {
-        assert($self instanceof self);
-
         /** @phpstan-var false|array{type: int, reserved: string} */
         $payload = unpack("Ctype/a7reserved", $binaryData);
         if ($payload === false) {

@@ -69,7 +69,7 @@ class Record
         /** @var static $self */
         $self   = (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
 
-        /** @phpstan-var false|array{version: int, type: int, requestId: int, contentLength: int, paddingLength: int} */
+        /** @phpstan-var false|array{version: int, type: int, requestId: int, contentLength: int, paddingLength: int, reserved: int} */
         $packet = unpack(FCGI::HEADER_FORMAT, $binaryData);
         if ($packet === false) {
             throw new \RuntimeException('Can not unpack data from the binary buffer');

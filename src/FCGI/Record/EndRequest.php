@@ -87,8 +87,6 @@ class EndRequest extends Record
      */
     protected static function unpackPayload($self, string $binaryData): void
     {
-        assert($self instanceof self);
-
         /** @phpstan-var false|array{appStatus: int, protocolStatus: int, reserved: string} */
         $payload = unpack("NappStatus/CprotocolStatus/a3reserved", $binaryData);
         if ($payload === false) {
