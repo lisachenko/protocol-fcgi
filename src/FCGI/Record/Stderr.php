@@ -11,19 +11,19 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
 use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 /**
  * Stderr binary stream
  *
  * FCGI_STDERR is a stream record for sending arbitrary data from the application to the Web server
  */
-class Stderr extends Record
+final class Stderr extends Record
 {
     public function __construct(string $contentData)
     {
-        $this->type = FCGI::STDERR;
+        $this->type = RecordType::Stderr;
         $this->setContentData($contentData);
     }
 }

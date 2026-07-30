@@ -11,17 +11,17 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
 use Lisachenko\Protocol\FCGI\Record;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 /**
  * The Web server sends a FCGI_ABORT_REQUEST record to abort a request
  */
-class AbortRequest extends Record
+final class AbortRequest extends Record
 {
     public function __construct(int $requestId)
     {
-        $this->type = FCGI::ABORT_REQUEST;
+        $this->type = RecordType::AbortRequest;
         $this->setRequestId($requestId);
     }
 }

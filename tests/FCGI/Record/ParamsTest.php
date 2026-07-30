@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Lisachenko\Protocol\FCGI\Record;
 
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\RecordType;
 use PHPUnit\Framework\TestCase;
 
 class ParamsTest extends TestCase
@@ -33,7 +33,7 @@ class ParamsTest extends TestCase
     public function testPacking(): void
     {
         $request = new Params(self::$params);
-        $this->assertEquals(FCGI::PARAMS, $request->getType());
+        $this->assertSame(RecordType::Params, $request->getType());
         $this->assertEquals(self::$params, $request->getValues());
 
         $this->assertSame(preg_replace('/\s+/', '', self::$rawMessage), bin2hex((string) $request));
@@ -48,7 +48,7 @@ class ParamsTest extends TestCase
         }
         $request = Params::unpack($binaryData);
 
-        $this->assertEquals(FCGI::PARAMS, $request->getType());
+        $this->assertSame(RecordType::Params, $request->getType());
         $this->assertEquals(self::$params, $request->getValues());
     }
 }

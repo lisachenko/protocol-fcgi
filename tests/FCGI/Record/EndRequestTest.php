@@ -12,7 +12,8 @@ declare(strict_types=1);
 namespace Lisachenko\Protocol\FCGI\Record;
 
 use PHPUnit\Framework\TestCase;
-use Lisachenko\Protocol\FCGI;
+use Lisachenko\Protocol\FCGI\ProtocolStatus;
+use Lisachenko\Protocol\FCGI\RecordType;
 
 class EndRequestTest extends TestCase
 {
@@ -20,9 +21,9 @@ class EndRequestTest extends TestCase
 
     public function testPacking(): void
     {
-        $request = new EndRequest(FCGI::REQUEST_COMPLETE, 100);
-        $this->assertEquals(FCGI::END_REQUEST, $request->getType());
-        $this->assertEquals(FCGI::REQUEST_COMPLETE, $request->getProtocolStatus());
+        $request = new EndRequest(ProtocolStatus::RequestComplete, 100);
+        $this->assertSame(RecordType::EndRequest, $request->getType());
+        $this->assertSame(ProtocolStatus::RequestComplete, $request->getProtocolStatus());
         $this->assertEquals(100, $request->getAppStatus());
 
         $this->assertSame(self::$rawMessage, bin2hex((string) $request));
@@ -34,8 +35,8 @@ class EndRequestTest extends TestCase
         $binaryData = hex2bin(self::$rawMessage);
         $request    = EndRequest::unpack($binaryData);
 
-        $this->assertEquals(FCGI::END_REQUEST, $request->getType());
-        $this->assertEquals(FCGI::REQUEST_COMPLETE, $request->getProtocolStatus());
+        $this->assertSame(RecordType::EndRequest, $request->getType());
+        $this->assertSame(ProtocolStatus::RequestComplete, $request->getProtocolStatus());
         $this->assertEquals(100, $request->getAppStatus());
     }
 }
