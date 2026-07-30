@@ -5,7 +5,7 @@
 [![Latest Version](https://img.shields.io/packagist/v/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
 [![Total Downloads](https://img.shields.io/packagist/dt/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
 [![Daily Downloads](https://img.shields.io/packagist/dd/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
-[![Minimum PHP Version](https://img.shields.io/packagist/dependency-v/lisachenko/protocol-fcgi/php.svg?colorB=8892BF)](https://www.php.net/supported-versions.php)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.4-8892BF.svg)](https://www.php.net/supported-versions.php)
 [![License](https://img.shields.io/packagist/l/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
 
 A **zero-dependency, object-oriented implementation of the FastCGI 1.0 binary protocol** for PHP.
