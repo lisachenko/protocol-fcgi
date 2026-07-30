@@ -1,99 +1,138 @@
-Object-oriented implementation of FCGI Protocol for PHP
----------------------------
+# PHP FastCGI Protocol
 
-FastCGI is an open extension to CGI that provides high performance for all Internet applications without the penalties
-of Web server APIs.
-
-Many modern web-servers such as nginx, apache, lighthttpd, etc are communicating with PHP via FCGI. So, this protocol
-is well known and used in many applications. More detailed information about the protocol is available here here:
-http://www.fastcgi.com/devkit/doc/fcgi-spec.html
-
-[![Build Status](https://travis-ci.org/lisachenko/protocol-fcgi.svg)](https://travis-ci.org/lisachenko/protocol-fcgi)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/lisachenko/protocol-fcgi/?branch=master)
-[![Packagist](https://img.shields.io/packagist/v/lisachenko/protocol-fcgi.svg)](https://github.com/lisachenko/protocol-fcgi)
-[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%207.4-8892BF.svg)](https://php.net/)
+[![CI](https://github.com/lisachenko/protocol-fcgi/actions/workflows/ci.yml/badge.svg)](https://github.com/lisachenko/protocol-fcgi/actions/workflows/ci.yml)
+![PHPStan Badge](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg?style=flat&link=https%3A%2F%2Fphpstan.org%2Fuser-guide%2Frule-levels)
+[![Latest Version](https://img.shields.io/packagist/v/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
+[![Total Downloads](https://img.shields.io/packagist/dt/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
+[![Daily Downloads](https://img.shields.io/packagist/dd/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
+[![Minimum PHP Version](https://img.shields.io/packagist/dependency-v/lisachenko/protocol-fcgi/php.svg?colorB=8892BF)](https://www.php.net/supported-versions.php)
 [![License](https://img.shields.io/packagist/l/lisachenko/protocol-fcgi.svg)](https://packagist.org/packages/lisachenko/protocol-fcgi)
 
-Usage
-------------
-This library can be used for implementing both client and server side of FCGI application. For example, nginx can
-connect to the PHP FCGI daemon, or some library code can connect to the FPM as a FCGI client.
+A **zero-dependency, object-oriented implementation of the FastCGI 1.0 binary protocol** for PHP.
 
-To install this library, just write
+FastCGI is the battle-tested protocol that web servers like nginx, Apache and Caddy use to
+talk to `php-fpm` — billions of requests flow through it every day. This library gives you
+the protocol itself as a clean, strictly-typed PHP API, so you can build your own
+high-performance FastCGI **clients** (talk to `php-fpm` directly, no web server in between)
+and **servers** (long-running PHP daemons that nginx can speak to natively).
 
-``` bash
-$ composer require lisachenko/protocol-fcgi
+## ✨ Key Features
+
+- 📦 **Complete protocol coverage** — all 11 FastCGI record types, including the
+  management records (`GET_VALUES`, `GET_VALUES_RESULT`, `UNKNOWN_TYPE`)
+- 🌊 **Streaming frame parser** — feed partial socket reads into
+  `FrameParser::hasFrame()` / `parseFrame()` and get fully-typed record objects out as
+  soon as they are complete
+- 🔄 **Byte-exact round-tripping** — every record packs back to the exact wire bytes it
+  was parsed from; the test suite is pinned to hex fixtures captured from real traffic
+- 📏 **Automatic 8-byte padding** — content alignment is handled for you, as the spec
+  recommends
+- 🏷️ **Full name-value pair encoding** — including the 4-byte long form for names and
+  values over 127 bytes
+- 🪶 **Zero runtime dependencies** — pure PHP, nothing but the language itself
+- 🔒 **Strict types + PHPStan at the maximum level** — the whole codebase (tests
+  included) passes static analysis at the strictest setting
+
+## Requirements
+
+- PHP >= 8.4
+
+## Installation
+
+```bash
+composer require lisachenko/protocol-fcgi
 ```
 
-After that you can use an API to parse/create FCGI requests and responses.
+## Usage
 
-Simple FCGI-client:
+The library implements both sides of the wire: use it to *send* FastCGI requests as a
+client, or to *receive* and answer them as a server. The full protocol specification is
+available at [fast-cgi.github.io/spec](https://fast-cgi.github.io/spec).
+
+### FastCGI client: query php-fpm directly
+
 ```php
 <?php
 
 use Lisachenko\Protocol\FCGI;
 use Lisachenko\Protocol\FCGI\FrameParser;
-use Lisachenko\Protocol\FCGI\Record;
 use Lisachenko\Protocol\FCGI\Record\BeginRequest;
+use Lisachenko\Protocol\FCGI\Record\EndRequest;
 use Lisachenko\Protocol\FCGI\Record\Params;
 use Lisachenko\Protocol\FCGI\Record\Stdin;
+use Lisachenko\Protocol\FCGI\Record\Stdout;
 
-include "vendor/autoload.php";
+include 'vendor/autoload.php';
 
-// Let's connect to the local php-fpm daemon directly
+// Connect to the local php-fpm daemon directly
 $phpSocket = fsockopen('127.0.0.1', 9001, $errorNumber, $errorString);
-$packet    = '';
 
-// Prepare our sequence for querying PHP file
-$packet .= new BeginRequest(FCGI::RESPONDER);;
+// Prepare the request: begin, pass parameters, then close the input stream.
+// Empty Params and Stdin records mark the end of the corresponding stream.
+$packet  = '';
+$packet .= new BeginRequest(FCGI::RESPONDER);
 $packet .= new Params(['SCRIPT_FILENAME' => '/var/www/some_file.php']);
-$packet .= new Params();
-$packet .= new Stdin();
+$packet .= new Params([]);
+$packet .= new Stdin('');
 
 fwrite($phpSocket, $packet);
 
-$response = '';
+// Read the response incrementally: the parser consumes complete frames
+// from the buffer and leaves partial ones for the next read.
+$buffer = '';
 while ($partialData = fread($phpSocket, 4096)) {
-    $response .= $partialData;
-    while (FrameParser::hasFrame($response)) {
-        $record = FrameParser::parseFrame($response);
-        var_dump($record);
-    };
-};
+    $buffer .= $partialData;
+    while (FrameParser::hasFrame($buffer)) {
+        $record = FrameParser::parseFrame($buffer);
+        if ($record instanceof Stdout) {
+            echo $record->getContentData();
+        }
+        if ($record instanceof EndRequest) {
+            break 2; // response is complete
+        }
+    }
+}
 
 fclose($phpSocket);
 ```
 
-To implement FCGI server, just create a socket and make request-response loop
+### FastCGI server: accept requests from a web server
 
 ```php
+<?php
 
-use Lisachenko\Protocol\FCGI;
 use Lisachenko\Protocol\FCGI\FrameParser;
-use Lisachenko\Protocol\FCGI\Record;
-use Lisachenko\Protocol\FCGI\Record\BeginRequest;
-use Lisachenko\Protocol\FCGI\Record\Params;
-use Lisachenko\Protocol\FCGI\Record\Stdin;
 
-include "vendor/autoload.php";
+include 'vendor/autoload.php';
 
-$server = stream_socket_server("tcp://127.0.0.1:9001" , $errorNumber, $errorString);
+$server = stream_socket_server('tcp://127.0.0.1:9001', $errorNumber, $errorString);
 
-// Just take the first one request and process it
-$phpSocket = stream_socket_accept($server);
+// Accept one connection and parse everything the web server sends
+$socket = stream_socket_accept($server);
 
-$response = '';
-while ($partialData = fread($phpSocket, 4096)) {
-    $response .= $partialData;
-    while (FrameParser::hasFrame($response)) {
-        $record = FrameParser::parseFrame($response);
-        var_dump($record);
-    };
-};
+$buffer = '';
+while ($partialData = fread($socket, 4096)) {
+    $buffer .= $partialData;
+    while (FrameParser::hasFrame($buffer)) {
+        $record = FrameParser::parseFrame($buffer);
+        var_dump($record); // BeginRequest, Params, Stdin, ...
+    }
+}
 
-// We don't respond correctly here, it's a task for your application
+// Answering (Stdout + EndRequest records) is up to your application
 
-fclose($phpSocket);
+fclose($socket);
 fclose($server);
 ```
+
+## Quality
+
+```bash
+composer test      # PHPUnit test suite
+composer phpstan   # PHPStan static analysis
+composer check     # both
+```
+
+## License
+
+Released under the [MIT license](LICENSE).
