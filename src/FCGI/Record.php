@@ -61,12 +61,20 @@ class Record implements Stringable
     private string $paddingData = '';
 
     /**
+     * Per-class reflection cache to avoid paying the reflection cost for every parsed record.
+     *
+     * @var array<class-string<Record>, ReflectionClass<covariant Record>>
+     */
+    private static array $reflectionCache = [];
+
+    /**
      * Unpacks the message from the binary data buffer
      */
     final public static function unpack(string $binaryData): static
     {
         /** @var static $self */
-        $self = new ReflectionClass(static::class)->newInstanceWithoutConstructor();
+        $self = (self::$reflectionCache[static::class] ??= new ReflectionClass(static::class))
+            ->newInstanceWithoutConstructor();
 
         /** @var false|array{version: int, type: int, requestId: int, contentLength: int, paddingLength: int, reserved: int} $header */
         $header = unpack(FCGI::HEADER_FORMAT, $binaryData);

@@ -55,52 +55,46 @@ class Params extends Record
 
     protected function unpackPayload(string $binaryData): void
     {
-        $currentOffset = 0;
-        do {
-            /** @var false|array{nameLengthHigh: int} $payload */
-            $payload = unpack('CnameLengthHigh', $binaryData);
-            if ($payload === false) {
-                throw new ProtocolException('Can not unpack the FCGI_NameValuePair');
-            }
-            $isLongName  = ($payload['nameLengthHigh'] >> 7 == 1);
-            $valueOffset = $isLongName ? 4 : 1;
+        $payloadLength = strlen($binaryData);
+        $offset        = 0;
+        while ($offset < $payloadLength) {
+            [$nameLength, $offset]  = self::unpackLength($binaryData, $offset);
+            [$valueLength, $offset] = self::unpackLength($binaryData, $offset);
 
-            /** @var false|array{valueLengthHigh: int} $payload */
-            $payload = unpack('CvalueLengthHigh', substr($binaryData, $valueOffset));
-            if ($payload === false) {
-                throw new ProtocolException('Can not unpack the FCGI_NameValuePair');
-            }
-            $isLongValue = ($payload['valueLengthHigh'] >> 7 == 1);
-            $dataOffset  = $valueOffset + ($isLongValue ? 4 : 1);
+            $name   = substr($binaryData, $offset, $nameLength);
+            $value  = substr($binaryData, $offset + $nameLength, $valueLength);
+            $offset += $nameLength + $valueLength;
 
-            $format = ($isLongName ? 'NnameLength' : 'CnameLength')
-                . '/' . ($isLongValue ? 'NvalueLength' : 'CvalueLength');
+            $this->values[$name] = $value;
+        }
+    }
 
-            /** @var false|array{nameLength: int, valueLength: int} $payload */
-            $payload = unpack($format, $binaryData);
-            if ($payload === false) {
-                throw new ProtocolException('Can not unpack the FCGI_NameValuePair');
-            }
+    /**
+     * Reads one FCGI_NameValuePair length field at the given offset.
+     *
+     * Lengths below 128 are encoded in a single byte; longer ones use four bytes
+     * with the top bit set.
+     *
+     * @return array{int, int} The decoded length and the offset right after it
+     */
+    private static function unpackLength(string $binaryData, int $offset): array
+    {
+        if (!isset($binaryData[$offset])) {
+            throw new ProtocolException('Can not unpack the FCGI_NameValuePair');
+        }
 
-            // Clear top bit for long record
-            $nameLength  = $payload['nameLength'] & ($isLongName ? 0x7fffffff : 0x7f);
-            $valueLength = $payload['valueLength'] & ($isLongValue ? 0x7fffffff : 0x7f);
+        $firstByte = ord($binaryData[$offset]);
+        if ($firstByte >> 7 === 0) {
+            return [$firstByte, $offset + 1];
+        }
 
-            /** @var false|array{nameData: string, valueData: string} $payload */
-            $payload = unpack(
-                "a{$nameLength}nameData/a{$valueLength}valueData",
-                substr($binaryData, $dataOffset)
-            );
-            if ($payload === false) {
-                throw new ProtocolException('Can not unpack the FCGI_NameValuePair');
-            }
+        /** @var false|array{length: int} $payload */
+        $payload = unpack('Nlength', $binaryData, $offset);
+        if ($payload === false) {
+            throw new ProtocolException('Can not unpack the FCGI_NameValuePair');
+        }
 
-            $this->values[$payload['nameData']] = $payload['valueData'];
-
-            $keyValueLength = $dataOffset + $nameLength + $valueLength;
-            $binaryData     = substr($binaryData, $keyValueLength);
-            $currentOffset += $keyValueLength;
-        } while ($currentOffset < $this->getContentLength());
+        return [$payload['length'] & 0x7fffffff, $offset + 4];
     }
 
     protected function packPayload(): string

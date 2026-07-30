@@ -28,13 +28,14 @@ final class FrameParser
             return false;
         }
 
-        /** @var false|array{version: int, type: int, requestId: int, contentLength: int, paddingLength: int, reserved: int} $header */
-        $header = unpack(FCGI::HEADER_FORMAT, $binaryBuffer);
-        if ($header === false) {
+        // Only the two length fields (bytes 4-6) are needed to decide about frame completeness
+        /** @var false|array{contentLength: int, paddingLength: int} $lengths */
+        $lengths = unpack('ncontentLength/CpaddingLength', $binaryBuffer, 4);
+        if ($lengths === false) {
             throw new ProtocolException('Can not unpack the FastCGI record header');
         }
 
-        return $bufferLength >= FCGI::HEADER_LEN + $header['contentLength'] + $header['paddingLength'];
+        return $bufferLength >= FCGI::HEADER_LEN + $lengths['contentLength'] + $lengths['paddingLength'];
     }
 
     /**
