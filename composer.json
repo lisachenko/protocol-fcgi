@@ -14,7 +14,7 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^12.2"
+        "phpunit/phpunit": "^13.4"
     },
     "autoload": {
         "psr-4" : {
